@@ -1,12 +1,15 @@
 # Introduction
 
-Asuna is the frontend (ionic/angular).
-king is the backend (Django Rest Framework).
+__asuna__ is the frontend (ionic/angular).
+
+__king__ is the backend (Django Rest Framework).
+
+__scraping__ contains the external files for populating the database.
 
 # About the king Backend
 
 ## A king Train Record
-king works with train route records. Each train route record is an object with the following attributes:
+__king__ works with train route records. Each train route record is an object with the following attributes:
 * created: (python datetime object, automatically created by default, so don't specify) 
 	* the date and time this record was added to the database
 * origin: string
@@ -24,8 +27,8 @@ king works with train route records. Each train route record is an object with t
 
 ## Start king Locally
 
-To run king locally and make post/get/delete requests:
-* cd into king (outer directory, where manage.py is)
+To run __king__ locally and make post/get/delete requests:
+* cd into __king__ (outer directory, where manage.py is)
 * python manage.py runserver
 
 ## Making GET requests to king (i.e. view database contents in browser)
