@@ -33,7 +33,7 @@ To run __king__ locally and make post/get/delete requests:
 
 ## Making GET requests to king (i.e. view database contents in browser)
 * go to localhost:8000/trainsched/all/ to view (get) all route instances in database
-* go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
+* go to localhost:8000/trainsched/fromto/_origin_/_dest_ to view all route instances from _origin_ and to _dest_ in database
 
 ## Making POST requests to king (i.e. inserting train route records into database)
 * we store the objects using JSON format. For example:
