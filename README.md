@@ -25,8 +25,8 @@ king works with train route records. Each train route record is an object with t
 ## Start king Locally
 
 To run king locally and make post/get/delete requests:
-	* cd into king (outer directory, where manage.py is)
-	* python manage.py runserver
+* cd into king (outer directory, where manage.py is)
+* python manage.py runserver
 
 ## Making GET requests to king (i.e. view database contents in browser)
 	* go to localhost:8000/trainsched/all/ to view (get) all route instances in database
