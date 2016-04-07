@@ -4,7 +4,7 @@ __asuna__ is the frontend (ionic/angular).
 
 __king__ is the backend (Django Rest Framework).
 
-__scraping__ contains the external files for populating the database.
+__scraping__ contains the external files for populating the database (str8 python).
 
 # About the king Backend
 
