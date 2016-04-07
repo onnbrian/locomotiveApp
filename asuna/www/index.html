@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+  </head>
+  <body ng-app="starter" ng-controller="starterCtrl">
+
+    <ion-nav-bar class="bar-positive">
+      <ion-nav-back-button>
+      </ion-nav-back-button>
+    </ion-nav-bar>
+             
+    <ion-nav-view></ion-nav-view>
+
+    <script id="templates/background.html" type="text/ng-template">
+      <ion-nav-view name="home-view"></ion-nav-view>
+      <div class="bar bar-footer bar-positive">
+      <div class="title">~~</div>
+      </div>
+    </script>
+
+    <script id="templates/home.html" type="text/ng-template">
+      <ion-view view-title="Menu">
+        <ion-content class="padding test">
+          <button class="button button-block button-positive button-stable icon-right ion-android-train" ui-sref="app.origin">SCHEDULES</button>
+          <button class="button button-block button-positive icon-right ion-map" ui-sref="app.map">ROUTE TRACKING</button>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/origin.html" type="text/ng-template">
+      <ion-view view-title="Select Origin">
+        <ion-content class="padding">
+          <div class="list">
+        <a class="item item-icon-right" ng-repeat='location in places' ng-click="setFrom(location)" ui-sref="app.dest">
+          {{location}}
+          <i class="icon ion-chevron-right"></i>
+        </a>
+      </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/destination.html" type="text/ng-template">
+      <ion-view view-title="Select Destination">
+        <ion-content class="padding">
+          <div class="list">
+        <a class="item item-icon-right" ng-repeat='location in places' ng-click="setTo(location); get_routes_fromto(from, to)" ui-sref="app.schedResults">
+          {{location}}
+          <i class="icon ion-chevron-right"></i>
+        </a>
+      </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/scheduleResults.html" type="text/ng-template">
+      <ion-view view-title="Search Results">
+        <ion-content class="padding">
+        <p>From: {{from}} </p>
+        <p>To: {{to}} </p>
+        <div class="card" ng-repeat='s in schedules track by $index'>
+          <div class="item item-text-wrap">
+            {{s}}
+          </div>
+        </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/map.html" type="text/ng-template">
+      <ion-view view-title="Routing Tracking">
+        <ion-content class="padding">
+          <p>Stay tuned... </p>
+        </ion-content>
+      </ion-view>
+    </script>
+  </body>
+</html>
