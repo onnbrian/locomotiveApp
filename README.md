@@ -7,20 +7,20 @@ king is the backend (Django Rest Framework).
 
 ## A king Train Record
 king works with train route records. Each train route record is an object with the following attributes:
-	-created: (python datetime object, automatically created by default, so don't specify) 
-		- the date and time this record was added to the database
-	-origin: string
-		- where is the train starting?
-	-dest: string
-		- where is the train going?
-	-departure: (python datetime object, but can be represented with string from browser)
-		- when does the train leave origin?
-	-arrival: (python datetime object, but can be represented with string from browser)
-		- when does the train arrive?
-	-transfers: (string)
-		- any transfers in JSON
-	-travelTime: (integer)
-		- how long is the total train ride?
+* created: (python datetime object, automatically created by default, so don't specify) 
+	* the date and time this record was added to the database
+* origin: string
+	* where is the train starting?
+*dest: string
+	* where is the train going?
+*departure: (python datetime object, but can be represented with string from browser)
+	* when does the train leave origin?
+*arrival: (python datetime object, but can be represented with string from browser)
+	* when does the train arrive?
+*transfers: (string)
+	* any transfers in JSON
+*travelTime: (integer)
+	* how long is the total train ride?
 
 ## Start king Locally
 
