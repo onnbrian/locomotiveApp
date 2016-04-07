@@ -5,10 +5,6 @@ king is the backend (Django Rest Framework).
 
 # About the king Backend
 
-To run king locally and make post/get/delete requests:
-	*cd into king (outer directory, where manage.py is)
-	*python manage.py runserver
-
 ## A king Train Record
 king works with train route records. Each train route record is an object with the following attributes:
 	-created: (python datetime object, automatically created by default, so don't specify) 
@@ -26,11 +22,17 @@ king works with train route records. Each train route record is an object with t
 	-travelTime: (integer)
 		- how long is the total train ride?
 
-Making GET requests to king (i.e. view database contents in browser)
-	-go to localhost:8000/trainsched/all/ to view (get) all route instances in database
-	-go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
+## Start king Locally
 
-Making POST requests to king (i.e. inserting train route records into database)
+To run king locally and make post/get/delete requests:
+	* cd into king (outer directory, where manage.py is)
+	* python manage.py runserver
+
+## Making GET requests to king (i.e. view database contents in browser)
+	* go to localhost:8000/trainsched/all/ to view (get) all route instances in database
+	* go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
+
+## Making POST requests to king (i.e. inserting train route records into database)
 	*we store the objects using JSON format. For example:
 		{
 	        "origin": "Princeton Station",
