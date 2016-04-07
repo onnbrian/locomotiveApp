@@ -2,8 +2,8 @@ Asuna is the frontend (ionic/angular).
 king is the backend (Django Rest Framework).
 
 To run king locally and make post/get/delete requests:
-	-cd into king (outer directory, where manage.py is)
-	-python manage.py runserver
+	*cd into king (outer directory, where manage.py is)
+	*python manage.py runserver
 	
 king works with train route records. Each train route record is an object with the following attributes:
 	-created: (python datetime object, automatically created by default, so don't specify) 
@@ -26,7 +26,7 @@ Making GET requests to king (i.e. view database contents in browser)
 	-go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
 
 Making POST requests to king (i.e. inserting train route records into database)
-	-we store the objects using JSON format. For example:
+	*we store the objects using JSON format. For example:
 		{
 	        "origin": "Princeton Station",
 	        "dest": "Philadelphia 30th Street",
@@ -35,7 +35,7 @@ Making POST requests to king (i.e. inserting train route records into database)
 	        "transfers": "none",
 	        "travelTime": 60
    		}
-   	-go to localhost:8000/trainsched/all/ to post individual train routes. 
+   	*go to localhost:8000/trainsched/all/ to post individual train routes. 
    		-scroll down to the textbox next to the words "content". 
    		-copy-paste the following JSON string (you can edit the values but not the keys) without the outer single quotes into the box:
 	   		'{
@@ -48,7 +48,7 @@ Making POST requests to king (i.e. inserting train route records into database)
 	   		}'
 	   	-press the post button
 	   	-view your newly entered data using one of the GET urls
-	- go to localhost:8000/trainsched/masspost/ to post multiple train route records simultaneously.
+	*go to localhost:8000/trainsched/masspost/ to post multiple train route records simultaneously.
 		- go to the textbox. 
 		- copy-paste a list of JSON string representations of the train records (without the outer single quotes):
 			'[{
