@@ -44,21 +44,24 @@ To run king locally and make post/get/delete requests:
 	}
 * go to localhost:8000/trainsched/all/ to post individual train routes. 
    	* scroll down to the textbox next to the words "content". 
-   	* copy-paste the following JSON string (you can edit the values but not the keys) without the outer single quotes into the box:
-		>'{
+   	* copy-paste the following JSON string (you can edit the values but not the keys) without the outer double quotes into the box:
+		```
+		"{
 			"origin": "Princeton Station",
 			"dest": "Philadelphia 30th Street",
 			"departure": "2016-03-31T07:46:40Z",
 			"arrival": "2016-03-31T09:46:40Z",
 			"transfers": "none",
 			"travelTime": 60
-		}'
+		}"
+		```
 	* press the post button
 	* view your newly entered data using one of the GET urls
 * go to localhost:8000/trainsched/masspost/ to post multiple train route records simultaneously.
 	* go to the textbox. 
-	* copy-paste a list of JSON string representations of the train records (without the outer single quotes):
-		'[{
+	* copy-paste a list of JSON string representations of the train records (without the outer double quotes):
+		```
+		"[{
 			"origin": "Princeton Station",
 			"dest": "Philadelphia 30th Street",
 			"departure": "2016-03-31T07:46:40Z",
@@ -73,7 +76,8 @@ To run king locally and make post/get/delete requests:
 			"arrival": "2016-03-31T09:46:40Z",
 			"transfers": "none",
 			"travelTime": 100
-		}]'
+		}]"
+		```
 	* press the post button
 	* view your newly entered data using one of the GET urls
 
