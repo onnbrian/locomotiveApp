@@ -36,15 +36,17 @@ To run __king__ locally and make post/get/delete requests:
 * go to localhost:8000/trainsched/fromto/_origin_/_dest_ to view all route instances from _origin_ and to _dest_ in database
 
 ## Making POST requests to king (i.e. inserting train route records into database)
-* we store the objects using JSON format. For example:
-	{
+* we store the objects using JSON format. For example, 
+	```
+	"{
 	    "origin": "Princeton Station",
 	    "dest": "Philadelphia 30th Street",
 	    "departure": "2016-03-31T07:46:40Z",
 	    "arrival": "2016-03-31T09:46:40Z",
 	    "transfers": "none",
 	    "travelTime": 60
-	}
+	}"
+	```
 * go to localhost:8000/trainsched/all/ to post individual train routes. 
    	* scroll down to the textbox next to the words "content". 
    	* copy-paste the following JSON string (you can edit the values but not the keys) without the outer double quotes into the box:
