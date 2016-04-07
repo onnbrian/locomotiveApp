@@ -11,15 +11,15 @@ king works with train route records. Each train route record is an object with t
 	* the date and time this record was added to the database
 * origin: string
 	* where is the train starting?
-*dest: string
+* dest: string
 	* where is the train going?
-*departure: (python datetime object, but can be represented with string from browser)
+* departure: (python datetime object, but can be represented with string from browser)
 	* when does the train leave origin?
-*arrival: (python datetime object, but can be represented with string from browser)
+* arrival: (python datetime object, but can be represented with string from browser)
 	* when does the train arrive?
-*transfers: (string)
+* transfers: (string)
 	* any transfers in JSON
-*travelTime: (integer)
+* travelTime: (integer)
 	* how long is the total train ride?
 
 ## Start king Locally
@@ -29,11 +29,11 @@ To run king locally and make post/get/delete requests:
 * python manage.py runserver
 
 ## Making GET requests to king (i.e. view database contents in browser)
-	* go to localhost:8000/trainsched/all/ to view (get) all route instances in database
-	* go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
+* go to localhost:8000/trainsched/all/ to view (get) all route instances in database
+* go to localhost:8000/trainsched/fromto/<origin>/<dest> to view all route instances from <origin> and to <dest> in database
 
 ## Making POST requests to king (i.e. inserting train route records into database)
-	*we store the objects using JSON format. For example:
+* we store the objects using JSON format. For example:
 		{
 	        "origin": "Princeton Station",
 	        "dest": "Philadelphia 30th Street",
