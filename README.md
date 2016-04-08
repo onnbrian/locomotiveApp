@@ -28,11 +28,11 @@ __king__ works with Trainroute records. Each Trainroute record is an object with
 * duration: (integer)
 	* how long is the total train ride?
 
-## Making Trainroute GET requests to king (i.e. view database contents in browser)
+### Making Trainroute GET requests to king (i.e. view database contents in browser)
 * go to localhost:8000/trainsched/routes_all/ to view (get) all route instances in database
 * go to localhost:8000/trainsched/routes_from_to/_origin_/_dest_ to view all route instances from _origin_ and to _dest_ in database
 
-## Making Trainroute POST requests to king (i.e. inserting train route records into database)
+### Making Trainroute POST requests to king (i.e. inserting train route records into database)
 * we store the objects using JSON format. For example, 
 	```
 	"{
