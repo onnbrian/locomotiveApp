@@ -26,7 +26,6 @@ __king__ works with train route records. Each train route record is an object wi
 	* how long is the total train ride?
 
 ## Start king Locally
-
 To run __king__ locally and make post/get/delete requests:
 * cd into __king__ (outer directory, where manage.py is)
 * python manage.py runserver

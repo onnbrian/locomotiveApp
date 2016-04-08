@@ -1,0 +1,30 @@
+[
+    {
+        "primary_key": "thisispk",
+        "created": "2016-04-08T12:51:45.120458Z",
+        "origin": "princeton",
+        "dest": "newark",
+        "trainName": "name",
+        "departure": "2016-03-31T07:46:40Z",
+        "arrival": "2016-03-31T09:46:40Z",
+        "transfers": [
+            {
+                "order": 1,
+                "departure": "2016-03-31T07:46:40Z",
+                "arrival": "2016-05-01T09:46:40Z",
+                "location": "Princeton Junction",
+                "trainName": "Dinky",
+                "trainroute": "thisispk"
+            },
+            {
+                "order": 2,
+                "departure": "2016-03-31T07:46:40Z",
+                "arrival": "2016-05-01T09:46:40Z",
+                "location": "Trenton",
+                "trainName": "Dinkster",
+                "trainroute": "thisispk"
+            }
+        ],
+        "duration": 60
+    }
+]

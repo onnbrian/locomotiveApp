@@ -14,7 +14,7 @@ app.service('dataService', function($http)
       return $http(
       {
           method: 'GET',
-          url: 'http://localhost:8000/trainsched/all'
+          url: 'http://localhost:8000/trainsched/routes_all'
           //params: 'limit=10, sort_by=created:desc',
        });
   }
@@ -24,14 +24,14 @@ app.service('dataService', function($http)
       return $http(
       {
           method: 'GET',
-          url: 'http://localhost:8000/trainsched/fromto/' + origin + '/' + dest
+          url: 'http://localhost:8000/trainsched/routes_from_to/' + origin + '/' + dest
        });
   }
 });
 
 app.controller('starterCtrl', function($scope, dataService)
 {
-  $scope.places = ['New York Penn Station', 'Newark Airport', 'Philadelphia 30th Street', 'Princeton Station']
+  $scope.places = ['New York Penn Station', 'Newark Airport', 'Philadelphia 30th Street', 'Princeton']
   $scope.from = '';
   $scope.to = '';
   $scope.schedules = 'Loading data...';

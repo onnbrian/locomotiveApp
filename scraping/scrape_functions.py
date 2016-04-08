@@ -1,9 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
-import requests
 from bs4 import BeautifulSoup
-from pprint import pprint
 import re
+from datetime import datetime
+import crud_functions
+import format_models
+import json
 
 # Princeton
 # New York Penn Station
@@ -12,7 +14,7 @@ import re
 # helper function for <getRouteData> to get HTML to scrape
 def getRouteHTML(origin, dest):
 	# open up web driver to nj transit rail search page
-	driver = webdriver.Firefox();
+	driver = webdriver.PhantomJS();
 	driver.get("http://www.njtransit.com/sf/sf_servlet.srv?hdnPageAction=TrainTo")
 
 	# get relevant form elements + convert to select objects
@@ -32,31 +34,25 @@ def getRouteHTML(origin, dest):
 	# get html and return
 	return driver.page_source
 
-def getTransferJSON():
-	return
-
-def getTripJSON(origin, dest, timeDeparture, timeArrival, travelTime, transfers):
-	return {"origin": origin, 
-			"dest": dest, 
-			"departure": str(timeDeparture), 
-			"arrival": str(timeArrival), 
-			"transfers": "none", 
-			"travelTime": 60}
-
 # scrape route data for <origin> and <dest>
-def getRouteData(origin, dest):
+def getTrainData(origin, dest, date):
 	html_source = getRouteHTML(origin, dest)
 	soup = BeautifulSoup(html_source, "html.parser")
 	#print soup.prettify()
 
 	g_data = soup.find_all("div", {"style": "width:578px; height:630px; overflow-x:auto; overflow-y:auto;"})
 
-	master = []
-	count = 0
+	all_routes = []
+	all_transfers = []
+	# collected attributes per loop:
+	# <time_dep> (time leaving origin)
+	# <time_arr> (time arriving at dest)
+	# <train_dep> (train leaving origin)
+	# <trans> (transfers)
+	# <tot_trav_time> (travel time)
 	for item in g_data:
 		# print item.text
 		temp = item.find_all("span")
-
 		# print temp
 		i = 0
 		
@@ -66,35 +62,55 @@ def getRouteData(origin, dest):
 				i = i+1
 				continue
 
-			# Parse departure time + train
-			orig_dep = [temp[i].text[:8], temp[i].text[8:]]
+			# parse departure time
+			time_dep = temp[i].text[:8]
+			# parse departure train
+			train_name = temp[i].text[8:]
+
 			i = i+1
 
 			# Parse connections (if they exist. if not, just leave an empty list [] in place)
-			trans = []
+			currTransfers = []
 			while not temp[i].text[0].isdigit():  #len(temp[i].text) > 8: # and temp[i].text[:7]=="Arrive ":
 				if temp[i].text[:7] == "Arrive ":
 					run = temp[i].text[7:].replace("Arrive ", "^").replace("Depart ", "^").split("^")
+					transfer = {}
 					for j, r in enumerate(run):
-						if j%2 == 0:
-							trans.append([u"A", r[:8], r[8:]])
+						if j % 2 == 0:
+							transfer['arrival'] = r[:8]
+							transfer['location'] = r[8:]
 						else:
-							trans.append([u"D", r[:8], r[8:]])
+							transfer['departure'] = r[:8]
+							transfer['trainName'] = r[8:]
+							currTransfers.append(transfer)
+							transfer = {}
 				i = i+1
 
-			# Parse arrival time
-			dest_arr = temp[i].text
+			# parse arrival time
+			time_arr = temp[i].text
 			i = i+1
 
 			# Parse duration
 			tot_trav_time = temp[i].text
 			i = i+1
 
-			# Put the trip together
-			trip = [orig_dep, trans, dest_arr, tot_trav_time]
-			print getTripJSON(origin, dest,)
-			break
-			master.append(trip)
+			# format trip into json for posting
+			trip = format_models.getTripJSON(origin, dest, train_name, date, time_dep, time_arr, tot_trav_time)
 
-t = getRouteHTML('Princeton', 'New York Penn Station')
-print getRouteData('Princeton', 'New York Penn Station')
+			# add trip to routes
+			all_routes.append(trip)
+
+			# format transfers in trip into json for posting
+			# and add to transfers
+			for k, t in enumerate(currTransfers):
+				all_transfers.append(format_models.getTransferJSON(trip["primary_key"], k, t['trainName'], 
+										t['location'], date, t['arrival'], t['departure']))
+			
+	return [all_routes, all_transfers]
+
+#data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
+#data = getTrainData('Princeton', 'Philadelphia 30th Street', datetime.today())
+
+#print json.dumps(data[0])
+#crud_functions.post_routes_mass(data[0])
+#crud_functions.post_transfers_mass(data[1])

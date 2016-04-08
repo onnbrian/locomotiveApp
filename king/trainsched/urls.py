@@ -2,7 +2,10 @@ from django.conf.urls import url
 from trainsched import views
 
 urlpatterns = [
-    url(r'^all/$', views.routes_all),
-    url(r'^fromto/(?P<origin>\w+(\s\w+)*)/(?P<dest>\w+(\s\w+)*)$', views.routes_fromto),
-    url(r'^masspost/$', views.routes_masspost),
+    url(r'^routes_all/$', views.routes_all),
+    url(r'^routes_from_to/(?P<origin>\w+(\s\w+)*)/(?P<dest>\w+(\s\w+)*)$', views.routes_from_to),
+    url(r'^routes_post_mass/$', views.routes_post_mass),
+    url(r'^routes_delete_all/$', views.routes_delete_all),
+    url(r'^transfers_all/$', views.transfers_all),
+    url(r'^transfers_post_mass/$', views.transfers_post_mass),
 ]

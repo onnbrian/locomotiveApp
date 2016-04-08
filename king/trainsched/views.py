@@ -1,27 +1,10 @@
-from trainsched.models import Trainroute
-from trainsched.serializers import TrainrouteSerializer
+from trainsched.models import Trainroute, Transfer
+from trainsched.serializers import TrainrouteSerializer, TransferSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-'''
-# class view...
-class TrainSchedList(APIView):
-	"""
-	List all train schedules in the database
-	"""
-	def get(self, request, format=None):
-		schedule = Trainroute.objects.all()
-		serializer = TrainrouteSerializer(schedule, many=True)
-		return Response(serializer.data)
-
-	def post(self, request, format=None):
-		serializer = TrainrouteSerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-'''
+# Views for <Trainroute> model/serializer
 
 @api_view(['GET', 'POST'])
 def routes_all(request):
@@ -41,7 +24,7 @@ def routes_all(request):
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'DELETE'])
-def routes_fromto(request, origin, dest):
+def routes_from_to(request, origin, dest):
 	"""
 	Retrieve all route instance specifying to/from.
 	"""
@@ -60,34 +43,45 @@ def routes_fromto(request, origin, dest):
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])
-def routes_masspost(request):
+def routes_post_mass(request):
 	if request.method == 'POST':
 		serializer = TrainrouteSerializer(data=request.data, many=True)
 	if serializer.is_valid():
 		serializer.save()
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
-	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)	
+	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-'''
-    [{
-        "origin": "PrincetonStation",
-        "dest": "Philadelphia30thStreetStation",
-        "departure": "2016-03-31T07:46:40Z",
-        "arrival": "2016-05-01T09:46:40Z",
-        "travelTime": 60
-    },
-    {
-        "origin": "PrincetonStation",
-        "dest": "Philadelphia30thStreetStation",
-        "departure": "2016-04-02T07:46:40Z",
-        "arrival": "2016-04-02T09:46:40Z",
-        "travelTime": 70
-    }],
-    {
-        "origin": "PrincetonStation",
-        "dest": "Philadelphia30thStreetStation",
-        "departure": "2016-04-02T07:46:40Z",
-        "arrival": "2016-04-02T10:06:40Z",
-        "travelTime": 70
-    }
-'''
+@api_view(['DELETE'])
+def routes_delete_all(request):
+	if request.method == 'DELETE':
+		routes = Trainroute.objects.all()
+		for route in routes:
+			route.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Views for <Transfer> model/serializer
+@api_view(['GET', 'POST'])
+def transfers_all(request):
+	"""
+	List all train routes, or create a new route
+	"""
+	if request.method == 'GET':
+		transfers = Transfer.objects.all()
+		serializer = TransferSerializer(transfers, many=True)
+		return Response(serializer.data)
+
+	elif request.method == 'POST':
+		serializer = TransferSerializer(data=request.data)
+	if serializer.is_valid():
+		serializer.save()
+		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def transfers_post_mass(request):
+	if request.method == 'POST':
+		serializer = TransferSerializer(data=request.data, many=True)
+	if serializer.is_valid():
+		serializer.save()
+		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
