@@ -32,7 +32,7 @@ class TransferSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Transfer
-        fields = ('order', 'departure', 'arrival', 'location', 'trainName', 'trainroute')
+        fields = ('order', 'timeDep', 'timeArr', 'location', 'trainName', 'trainroute')
 
 class TrainrouteSerializer(serializers.ModelSerializer):
     transfers = TransferSerializer(many=True, read_only=True)
@@ -69,4 +69,4 @@ class TrainrouteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Trainroute
-        fields = ('primary_key', 'created', 'origin', 'dest', 'trainName', 'departure', 'arrival', 'transfers', 'duration')
+        fields = ('primary_key', 'created', 'origin', 'dest', 'trainName', 'searchDate', 'timeStart', 'timeEnd', 'transfers', 'duration')

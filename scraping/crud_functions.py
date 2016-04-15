@@ -45,6 +45,8 @@ def delete_routes_from_to(origin, dest):
 	return
 
 # CRUD functions for Transfer
+
+# get all transfers
 def get_transfers_all():
     r = requests.get(url_strings['tranfers_get_all'])
     r.raise_for_status()

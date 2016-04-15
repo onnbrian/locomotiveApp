@@ -11,7 +11,8 @@ def formatTravelLength(raw_l):
 
 # convert raw unicode time into python datetime object
 # train info lost here
-def formatTime(date_searched, raw_t, string):
+def formatTime(raw_t):
+	'''
 	# cut off time to convert datetime object to next day (for late night trains)
 	CUTOFF_TIME =  '3:30 am'
 	d = datetime.strptime(date_searched.strftime('%m-%d-%Y') + str(raw_t), '%m-%d-%Y%I:%M %p')#.isoformat()
@@ -21,25 +22,35 @@ def formatTime(date_searched, raw_t, string):
 		d = d + timedelta(days=1)
 	if string:
 		return d.isoformat()
-	return d
+	return d	
+	'''
+	d = datetime.strptime(datetime.today().strftime('%m-%d-%Y') + str(raw_t), '%m-%d-%Y%I:%M %p')
+	#return d.time().strftime('%H:%M')
+	return d.time().isoformat()
+
+def formatDate(date):
+	#return date.isoformat()
+	return date.strftime('%Y-%m-%d')
 
 def generatePrimaryKey(origin, dest, departureDatetime):
-	return origin + dest + departureDatetime.strftime('%m%d%Y%I%M')
+	return origin + dest + departureDatetime#.strftime('%m%d%Y%I%M')
 
 def getTransferJSON(fk, order, trainName, location, date, timeArrival, timeDeparture):
 	return {"trainroute": fk,
 			"order": order,
 			"trainName": trainName,
 			"location": location,
-			"arrival": formatTime(date, timeArrival, True),
-			"departure": formatTime(date, timeDeparture, True)}
+			"timeArr": formatTime(timeArrival),
+			"timeDep": formatTime(timeDeparture)}
 
 def getTripJSON(origin, dest, name, date, timeDeparture, timeArrival, travelLength):
-	dep = formatTime(date, timeDeparture, False)
-	return {"primary_key": generatePrimaryKey(origin, dest, dep),
+	date = formatDate(date)
+	timeDeparture = formatTime(timeDeparture)
+	return {"primary_key": generatePrimaryKey(origin, dest, date + timeDeparture),
 			"origin": origin, 
-			"dest": dest, 
+			"dest": dest,
+			"searchDate": date,
 			"trainName": name,
-			"departure": dep.isoformat(), 
-			"arrival": formatTime(date, timeArrival, True),
+			"timeStart": timeDeparture,
+			"timeEnd": formatTime(timeArrival),
 			"duration": formatTravelLength(travelLength)}

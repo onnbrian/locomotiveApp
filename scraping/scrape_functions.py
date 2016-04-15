@@ -108,7 +108,9 @@ def getTrainData(origin, dest, date):
 			
 	return [all_routes, all_transfers]
 
-#data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
+data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
+for d in data[0]:
+	print json.dumps(d)
 #data = getTrainData('Princeton', 'Philadelphia 30th Street', datetime.today())
 
 #print json.dumps(data[0])

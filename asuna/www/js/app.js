@@ -34,6 +34,7 @@ app.controller('starterCtrl', function($scope, dataService)
   $scope.places = ['New York Penn Station', 'Newark Airport', 'Philadelphia 30th Street', 'Princeton']
   $scope.from = '';
   $scope.to = '';
+  $scope.searchDate = '...';
   $scope.schedules = 'Loading data...';
 
   $scope.setFrom = function(originString)
@@ -43,6 +44,10 @@ app.controller('starterCtrl', function($scope, dataService)
   $scope.setTo = function(destString)
   {
     $scope.to = destString;
+  };
+  $scope.setDate = function(dateString)
+  {
+    $scope.searchDate = dateString;
   };
   $scope.get_routes_all = function()
   {
@@ -56,6 +61,7 @@ app.controller('starterCtrl', function($scope, dataService)
     dataService.get_routes_fromto(from, to).then(function(dataResponse) 
       {
          $scope.schedules = dataResponse.data;
+         console.log($scope.schedules)
       });
   }
 })

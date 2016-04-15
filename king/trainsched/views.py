@@ -3,6 +3,7 @@ from trainsched.serializers import TrainrouteSerializer, TransferSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from datetime import date
 
 # Views for <Trainroute> model/serializer
 
@@ -30,6 +31,26 @@ def routes_from_to(request, origin, dest):
 	"""
 	try:
 		routes = Trainroute.objects.filter(origin=origin, dest=dest)
+	except Trainroute.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	if request.method == 'GET':
+		serializer = TrainrouteSerializer(routes, many=True)
+		return Response(serializer.data)
+
+	elif request.method == 'DELETE':
+		for route in routes:
+			route.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET', 'DELETE'])
+def routes_from_to_on(request, origin, dest, searchDate):
+	"""
+	Retrieve all route instance specifying to/from.
+	"""
+	try:
+		routes = Trainroute.objects.filter(origin=origin, dest=dest, searchDate=searchDate)
 	except Trainroute.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
 

@@ -50,8 +50,8 @@
       <ion-view view-title="Select Origin">
         <ion-content class="padding">
           <div class="list">
-        <a class="item item-icon-right" ng-repeat='location in places' ng-click="setFrom(location)" ui-sref="app.dest">
-          {{location}}
+        <a class="item item-icon-right" ng-repeat='location in places' ng-model="from2"
+           ng-click="setFrom(location)" ui-sref="app.dest" ng-bind="location">
           <i class="icon ion-chevron-right"></i>
         </a>
       </div>
@@ -63,8 +63,8 @@
       <ion-view view-title="Select Destination">
         <ion-content class="padding">
           <div class="list">
-        <a class="item item-icon-right" ng-repeat='location in places' ng-click="setTo(location); get_routes_fromto(from, to)" ui-sref="app.schedResults">
-          {{location}}
+            <a class="item item-icon-right" ng-repeat='location in places' ng-click="setTo(location); get_routes_fromto(from, to)" 
+              ui-sref="app.schedResults" ng-bind="location">
           <i class="icon ion-chevron-right"></i>
         </a>
       </div>
@@ -75,11 +75,27 @@
     <script id="templates/scheduleResults.html" type="text/ng-template">
       <ion-view view-title="Search Results">
         <ion-content class="padding">
-        <p>From: {{from}} </p>
-        <p>To: {{to}} </p>
+        <p>From {{from}} to {{to}}</p>
+        <p> on {{searchDate}} </p>
         <div class="card" ng-repeat='s in schedules track by $index'>
           <div class="item item-text-wrap">
-            {{s}}
+            <p>Depart: {{s['timeStart']}}</p>
+            <p>Train: {{s['trainName']}}</p>
+
+            <ion-checkbox ng-model="open">Show Transfers</ion-checkbox>
+
+            <div ng-show="open">
+              <div class="item item-text-wrap" ng-repeat='t in s["transfers"] track by $index'>
+                <p><b>Transfer {{t['order'] + 1}}</b></p>
+                <p>Arrive: {{t['timeArr']}}</p>
+                <p>Place: {{t['location']}}</p>
+                <p>Depart: {{t['timeDep']}}</p>
+                <p>Train: {{t['trainName']}}</p>
+              </div>
+            </div>
+
+            <p>Arrive: {{s['timeEnd']}}</p>
+            <p>Total travel time: {{s['duration']}}</p>
           </div>
         </div>
         </ion-content>

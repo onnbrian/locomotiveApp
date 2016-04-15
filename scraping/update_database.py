@@ -20,8 +20,3 @@ pairs = [['Princeton', 'Philadelphia 30th Street'],
 
 for pair in pairs:
 	updateRouteData(pair[0], pair[1], datetime.today())
-
-
-
-
-
