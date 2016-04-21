@@ -18,5 +18,8 @@ pairs = [['Princeton', 'Philadelphia 30th Street'],
 		 ['Princeton', 'Newark Airport'],
 		]
 
+= {"Princeton": ["New York Penn Station", "Newark", "Philadelphia"],
+	"New York Penn Station": ["", "", "", "", ""]}
+
 for pair in pairs:
 	updateRouteData(pair[0], pair[1], datetime.today())

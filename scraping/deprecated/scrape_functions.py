@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import re
-from datetime import datetime, date
+from datetime import datetime
 import crud_functions
 import format_models
 import json
@@ -12,13 +12,7 @@ import json
 
 
 # helper function for <getRouteData> to get HTML to scrape
-def getRouteHTML(origin, dest, d):
-	input_day = str(d.day)
-	#print input_day
-	input_month = d.month
-
-	month = datetime.now().month
-
+def getRouteHTML(origin, dest, date):
 	# open up web driver to nj transit rail search page
 	driver = webdriver.PhantomJS();
 	driver.get("http://www.njtransit.com/sf/sf_servlet.srv?hdnPageAction=TrainTo")
@@ -33,30 +27,6 @@ def getRouteHTML(origin, dest, d):
 	selOrigin.select_by_visible_text(origin)
 	selDest.select_by_visible_text(dest)
 
-	# Pick date
-	driver.find_element_by_id("datepicker").click()
-
-	while month != input_month:
-	    driver.find_element_by_xpath("//*[@id='dp-popup']/div[2]/a[2]").click()
-	    if month == 12:
-	        month = 1
-	    else:
-	        month = month + 1
-
-	datepicker = driver.find_element_by_id("dp-popup")
-	rows = datepicker.find_elements_by_tag_name("tr")
-	columns = datepicker.find_elements_by_tag_name("td")
-
-	passdiss = False
-	for cell in columns:
-	    if cell.text == "1":
-	        passdiss = True
-	    if passdiss:
-	        #print cell.text                                                        
-	        if cell.text == input_day:
-	        	cell.click()
-	        	break
-
 	# submit form
 	button = driver.find_element_by_xpath("//input[@value='View Schedule']")
 	button.click()
@@ -65,8 +35,8 @@ def getRouteHTML(origin, dest, d):
 	return driver.page_source
 
 # scrape route data for <origin> and <dest>
-def getTrainData(origin, dest, d):
-	html_source = getRouteHTML(origin, dest, d)
+def getTrainData(origin, dest, date):
+	html_source = getRouteHTML(origin, dest)
 	soup = BeautifulSoup(html_source, "html.parser")
 	#print soup.prettify()
 
@@ -125,7 +95,7 @@ def getTrainData(origin, dest, d):
 			i = i+1
 
 			# format trip into json for posting
-			trip = format_models.getTripJSON(origin, dest, train_name, d, time_dep, time_arr, tot_trav_time)
+			trip = format_models.getTripJSON(origin, dest, train_name, date, time_dep, time_arr, tot_trav_time)
 
 			# add trip to routes
 			all_routes.append(trip)
@@ -134,14 +104,13 @@ def getTrainData(origin, dest, d):
 			# and add to transfers
 			for k, t in enumerate(currTransfers):
 				all_transfers.append(format_models.getTransferJSON(trip["primary_key"], k, t['trainName'], 
-										t['location'], d, t['arrival'], t['departure']))
+										t['location'], date, t['arrival'], t['departure']))
 			
 	return [all_routes, all_transfers]
 
-#d = date(2016, 5, 20)
-#print getTrainData("Princeton", "New York Penn Station", d)
-
-#data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
+data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
+for d in data[0]:
+	print json.dumps(d)
 #data = getTrainData('Princeton', 'Philadelphia 30th Street', datetime.today())
 
 #print json.dumps(data[0])

@@ -23,18 +23,34 @@
   </head>
   <body ng-app="starter" ng-controller="starterCtrl">
 
-    <ion-nav-bar class="bar-positive">
-      <ion-nav-back-button>
-      </ion-nav-back-button>
-    </ion-nav-bar>
              
     <ion-nav-view></ion-nav-view>
 
     <script id="templates/background.html" type="text/ng-template">
+      <ion-side-menus>
+
+           <ion-side-menu-content drag-content="false" >
+        <ion-nav-bar class="bar-positive">
+          <ion-nav-back-button></ion-nav-back-button>
+          <ion-nav-buttons side="right">
+            <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+          </ion-nav-buttons>
+        </ion-nav-bar>
       <ion-nav-view name="home-view"></ion-nav-view>
-      <div class="bar bar-footer bar-positive">
-      <div class="title">~~</div>
-      </div>
+     </ion-side-menu-content>
+
+     <ion-side-menu side="right">
+        <ion-content>
+            <ul class="list">
+              <a class="item" ui-sref="app.home" menu-close>Home</a>
+              <a class="item" menu-close>Tracking</a>
+              <a class="item" menu-close>Saved Routes</a>
+            </ul>
+          </ion-content>
+     </ion-side-menu>
+
+    </ion-side-menus>
+
     </script>
 
     <script id="templates/home.html" type="text/ng-template">
@@ -42,6 +58,8 @@
         <ion-content class="padding test">
           <button class="button button-block button-positive button-stable icon-right ion-android-train" ui-sref="app.origin">SCHEDULES</button>
           <button class="button button-block button-positive icon-right ion-map" ui-sref="app.map">ROUTE TRACKING</button>
+          <button class="button button-block button-positive icon-right ion-map" ng-click="intervalAlerts()">start timing</button>
+         <button class="button button-block button-positive icon-right ion-map" ng-click="showme()">show me</button>
         </ion-content>
       </ion-view>
     </script>
@@ -50,11 +68,11 @@
       <ion-view view-title="Select Origin">
         <ion-content class="padding">
           <div class="list">
-        <a class="item item-icon-right" ng-repeat='location in places' ng-model="from2"
-           ng-click="setFrom(location)" ui-sref="app.dest" ng-bind="location">
-          <i class="icon ion-chevron-right"></i>
-        </a>
-      </div>
+            <a class="item item-icon-right" ng-repeat='location in all_origins'
+               ng-click="setFrom(location)" ui-sref="app.dest" ng-bind="location">
+              <i class="icon ion-chevron-right"></i>
+            </a>
+          </div>
         </ion-content>
       </ion-view>
     </script>
@@ -63,44 +81,110 @@
       <ion-view view-title="Select Destination">
         <ion-content class="padding">
           <div class="list">
-            <a class="item item-icon-right" ng-repeat='location in places' ng-click="setTo(location); get_routes_fromto(from, to)" 
-              ui-sref="app.schedResults" ng-bind="location">
-          <i class="icon ion-chevron-right"></i>
-        </a>
-      </div>
+            <a class="item item-icon-right" ng-repeat='location in travel_obj[from]' ng-click="setTo(location)" 
+              ui-sref="app.searchDate" ng-bind="location">
+              <i class="icon ion-chevron-right"></i>
+            </a>
+          </div>
         </ion-content>
       </ion-view>
     </script>
+
+    <script id="templates/pickDate.html" type="text/ng-template">
+      <ion-view view-title="Select Date">
+        <ion-content class="padding">
+          <label class="item item-input">
+            <span class="input-label">Date</span>
+            <input type="date" placeholder="yyyy-MM-dd" ng-model="searchDate.value" required>
+          </label>
+          <button class="button button-block button-positive icon-right ion-map" ng-click="setDateVars(); get_routes_from_to_on(from, to, dateString)" ui-sref="app.schedResults">Search!</button>
+        </ion-content>
+      </ion-view>
+    </script>
+
+
+
 
     <script id="templates/scheduleResults.html" type="text/ng-template">
-      <ion-view view-title="Search Results">
-        <ion-content class="padding">
-        <p>From {{from}} to {{to}}</p>
-        <p> on {{searchDate}} </p>
-        <div class="card" ng-repeat='s in schedules track by $index'>
-          <div class="item item-text-wrap">
-            <p>Depart: {{s['timeStart']}}</p>
-            <p>Train: {{s['trainName']}}</p>
+      <ion-view view-title="{{month}}-{{day}}-{{year}}">
+        <ion-content class="padding" overflow-scroll="true">
+        <section ng-repeat='s in schedules track by $index' id="anchor{{$index}}"> 
+        <div class="card" ng-init="show={settings: false, transfers: false, card_ID:$index}">
+          <div class="item item-divider" ng-show="show.settings">
+            <div class="button-bar">
+              <a class="button button-outline button-dark" ng-click="setTrains(s); showPopup()">Live Track</a>
+              <a class="button button-outline button-dark" ng-click="show.transfers=!show.transfers">Transfers</a>
+            </div>
+          </div>
 
-            <ion-checkbox ng-model="open">Show Transfers</ion-checkbox>
+          <div class="item item-text-wrap" ng-click="flip_card(show)">
+            <div class="row">
+              <div class="col"><h2><b>Depart</b></h2></div>
+              <div class="col"><h2>{{s['timeStart']}}</h2></div>
+            </div>
+            <div class="row">
+              <div class="col"><h2><b>Arrive</b></h2></div>
+              <div class="col"><h2>{{s['timeEnd']}}</h2></div>
+            </div>
+            <div class="row">
+              <div class="col"><h2><b>Total Travel Time</b></h2></div>
+              <div class="col"><h2>{{s['duration']}}</h2></div>
+            </div>
+            <div class="row">
+              <div class="col"><h2><b>Train</b></h2></div>
+              <div class="col"><h2>{{s['trainName']}}</h2></div>
+            </div>
+          </div>
 
-            <div ng-show="open">
-              <div class="item item-text-wrap" ng-repeat='t in s["transfers"] track by $index'>
-                <p><b>Transfer {{t['order'] + 1}}</b></p>
-                <p>Arrive: {{t['timeArr']}}</p>
-                <p>Place: {{t['location']}}</p>
-                <p>Depart: {{t['timeDep']}}</p>
-                <p>Train: {{t['trainName']}}</p>
+
+          <div class="item item-divider" ng-show="show.transfers">
+              <div class="card" ng-repeat='t in s["transfers"] track by $index'>
+                <div class="item item-divider">
+                  <h2><b>[{{t['order'] + 1}}] {{t['trainName']}}</b></h2>
+                </div>
+                <div class="item item-text-wrap">
+                  <div class="row">
+                    <div class="col"><h2><b>Place</b></h2></div>
+                    <div class="col"><h2>{{t['location']}}</h2></div>
+                  </div>
+                  <div class="row">
+                    <div class="col"><h2><b>Arrive</b></h2></div>
+                    <div class="col"><h2>{{t['timeArr']}}</h2></div>
+                  </div>
+                  <div class="row">
+                    <div class="col"><h2><b>Depart</b></h2></div>
+                    <div class="col"><h2>{{t['timeDep']}}</h2></div>
+                  </div>
+
               </div>
+
+
             </div>
 
-            <p>Arrive: {{s['timeEnd']}}</p>
-            <p>Total travel time: {{s['duration']}}</p>
           </div>
         </div>
+        </section>
         </ion-content>
       </ion-view>
     </script>
+
+    <script id="my-popup.html" type="text/ng-template">
+          <div class="list">
+            <a class="item item-icon-right" ng-repeat='num in train_numbers' ng-bind="num" ui-sref="app.liveData" ng-click="get_live_data(num); sendOrder();">
+              <i class="icon ion-chevron-right"></i>
+            </a>
+          </div>
+    </script>
+
+    <script id="templates/liveData.html" type="text/ng-template">
+      <ion-view view-title="Live Data">
+        <ion-content class="padding">
+          {{}}
+        {{live_train_data}}
+        </ion-content>
+      </ion-view>
+    </script>
+
 
     <script id="templates/map.html" type="text/ng-template">
       <ion-view view-title="Routing Tracking">
@@ -109,5 +193,6 @@
         </ion-content>
       </ion-view>
     </script>
+
   </body>
 </html>

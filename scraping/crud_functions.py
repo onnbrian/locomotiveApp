@@ -1,7 +1,7 @@
 import requests
 import json
 
-url_strings = {
+local_url_strings = {
 	'routes_get_all': 'http://localhost:8000/trainsched/routes_all',
 	'routes_get_from_to': 'http://localhost:8000/trainsched/routes_from_to/{0}/{1}',
 	'routes_post_single': 'http://localhost:8000/trainsched/routes_all/',
@@ -11,6 +11,21 @@ url_strings = {
     'transfers_post_single': 'http://localhost:8000/trainsched/transfers_all/',
     'transfers_post_mass': 'http://localhost:8000/trainsched/transfers_post_mass/',
 }
+
+remote_url_strings = {
+	'routes_get_all': 'http://54.165.156.225:8000/trainsched/routes_all',
+	'routes_get_from_to': 'http://54.165.156.225:8000/trainsched/routes_from_to/{0}/{1}',
+	'routes_get_from_to_on': 'http://54.165.156.225:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
+	'routes_post_single': 'http://54.165.156.225:8000/trainsched/routes_all/',
+	'routes_post_mass': 'http://54.165.156.225:8000/trainsched/routes_post_mass/',
+	'routes_delete_from_to': 'http://54.165.156.225:8000/trainsched/routes_from_to/{0}/{1}',
+	'routes_delete_from_to_on': 'http://54.165.156.225:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
+    'transfers_get_all': 'http://54.165.156.225:8000/trainsched/transfers_all/',
+    'transfers_post_single': 'http://54.165.156.225:8000/trainsched/transfers_all/',
+    'transfers_post_mass': 'http://54.165.156.225:8000/trainsched/transfers_post_mass/',
+}
+
+url_strings = remote_url_strings
 
 # CRUD functions for Trainroute
 
@@ -23,6 +38,12 @@ def get_routes_all():
 # get routes from/to
 def get_routes_from_to(origin, dest):
 	r = requests.get(url_strings['routes_get_from_to'].format(origin, dest))
+	r.raise_for_status()
+	return r.text
+
+# get routes from/to/on
+def get_routes_from_to(origin, dest, d):
+	r = requests.get(url_strings['routes_get_from_to_on'].format(origin, dest, d))
 	r.raise_for_status()
 	return r.text
 
@@ -41,6 +62,12 @@ def post_routes_mass(route_json):
 # delete all routes to/from destination
 def delete_routes_from_to(origin, dest):
 	r = requests.delete(url_strings['routes_delete_from_to'].format(origin, dest))
+	r.raise_for_status()
+	return
+
+# delete all routes to/from destination
+def delete_routes_from_to_on(origin, dest, d):
+	r = requests.delete(url_strings['routes_delete_from_to_on'].format(origin, dest, d))
 	r.raise_for_status()
 	return
 

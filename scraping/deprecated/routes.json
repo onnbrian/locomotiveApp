@@ -1,0 +1,8 @@
+{
+	"Princeton": ["New York Penn Station", "Newark Airport", "Philadelphia 30th Street","Trenton Transit Center"],
+	"New York Penn Station": ["Princeton", "Newark Airport", "Philadelphia 30th Street","Trenton Transit Center"],
+	"Newark Airport": ["New York Penn Station","Princeton","Philadelphia 30th Street","Trenton Transit Center"],
+	"Philadelphia 30th Street": ["New York Penn Station","Princeton","Newark Airport","Atlantic City","Trenton Transit Center"],
+	"Trenton Transit Center": ["Princeton","New York Penn Station","Newark Airport","Philadelphia 30th Street"],
+	"Atlantic City": ["Philadelphia 30th Street"]
+}

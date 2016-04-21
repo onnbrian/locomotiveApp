@@ -1,0 +1,31 @@
+[INFO  - 2016-04-17T20:53:18.626Z] GhostDriver - Main - running on port 53931
+[INFO  - 2016-04-17T20:53:18.723Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1","webSecurityEnabled":true}
+[INFO  - 2016-04-17T20:53:18.723Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.customHeaders:  - {}
+[INFO  - 2016-04-17T20:53:18.723Z] Session [69e401e0-04de-11e6-8638-395218c46657] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-10.11 (El Capitan)-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}}
+[INFO  - 2016-04-17T20:53:18.723Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 69e401e0-04de-11e6-8638-395218c46657
+[ERROR - 2016-04-17T20:53:19.488Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.onError - msg: TypeError: undefined is not an object (evaluating 'result.astronomy.sunrise')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2016-04-17T20:53:19.489Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.onError - stack:
+  (anonymous function) (http://www.njtransit.com/javascript/jquery.simpleWeather.js:46)
+  each (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  (anonymous function) (http://www.njtransit.com/javascript/jquery.simpleWeather.js:41)
+  n (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  fireWith (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  w (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:4)
+  onreadystatechange (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:4)
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2016-04-17T20:53:21.778Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.onError - msg: TypeError: undefined is not an object (evaluating 'result.astronomy.sunrise')
+
+  phantomjs://platform/console++.js:263 in error
+[ERROR - 2016-04-17T20:53:21.778Z] Session [69e401e0-04de-11e6-8638-395218c46657] - page.onError - stack:
+  (anonymous function) (http://www.njtransit.com/javascript/jquery.simpleWeather.js:46)
+  each (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  (anonymous function) (http://www.njtransit.com/javascript/jquery.simpleWeather.js:41)
+  n (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  fireWith (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:2)
+  w (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:4)
+  onreadystatechange (http://www.njtransit.com/javascript/jquery-1.7.1.min.js:4)
+
+  phantomjs://platform/console++.js:263 in error
