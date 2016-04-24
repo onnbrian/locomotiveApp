@@ -1,0 +1,68 @@
+          <button class="button button-block button-positive button-stable icon-right ion-android-train" ui-sref="app.origin">SCHEDULES</button>
+          <button class="button button-block button-positive icon-right ion-map" ui-sref="app.map">ROUTE TRACKING</button>
+          <button class="button button-block button-positive icon-right ion-map" ng-click="helper()">ROUTE TRACKING</button>
+
+    <script id="templates/origin.html" type="text/ng-template">
+      <ion-view view-title="Select Origin">
+        <ion-content class="padding">
+          <div class="list">
+            <a class="item item-icon-right" ng-repeat='location in all_origins'
+               ng-click="setFrom(location)" ui-sref="app.dest" ng-bind="location">
+              <i class="icon ion-chevron-right"></i>
+            </a>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+    
+    <script id="templates/destination.html" type="text/ng-template">
+      <ion-view view-title="Select Destination">
+        <ion-content class="padding">
+          <div class="list">
+            <a class="item item-icon-right" ng-repeat='location in travel_obj[from]' ng-click="setTo(location)" 
+              ui-sref="app.searchDate" ng-bind="location">
+              <i class="icon ion-chevron-right"></i>
+            </a>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    <script id="templates/pickDate.html" type="text/ng-template">
+      <ion-view view-title="Select Date">
+        <ion-content class="padding">
+          <label class="item item-input">
+            <span class="input-label">Date</span>
+            <input type="date" placeholder="yyyy-MM-dd" ng-model="searchDate.value" required>
+          </label>
+          <button class="button button-block button-positive icon-right ion-map" ng-click="setDateVars(); get_routes_from_to_on(from, to, dateString)" ui-sref="app.schedResults">Search!</button>
+        </ion-content>
+      </ion-view>
+    </script>
+
+    .state('app.origin', {
+      url: "/origin",
+      views: {
+        'home-view': {
+          templateUrl: "templates/origin.html"
+        }
+      }
+    })
+
+    .state('app.dest', {
+      url: "/dest",
+      views: {
+        'home-view': {
+          templateUrl: "templates/destination.html"
+        }
+      }
+    })
+
+    .state('app.searchDate', {
+      url: "/searchDate",
+      views: {
+        'home-view': {
+          templateUrl: "templates/pickDate.html"
+        }
+      }
+    })

@@ -26,58 +26,81 @@ app.service('dataService', function($http)
       return $http(
       {
           method: 'GET',
-          url: 'http://localhost:8000/trainsched/live_data_get/' + train_number
-          //url: 'http://54.165.156.225:8000/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
+          //url: 'http://localhost:8000/trainsched/live_data_get/' + train_number
+          url: 'http://54.165.156.225:8000/trainsched/live_data_get/' + train_number
        });
   }
 
 
 });
 
-app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicScrollDelegate, $ionicPopup, $ionicPosition, $ionicSideMenuDelegate, $http, dataService)
+app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicScrollDelegate, $ionicPopup, $ionicPosition, $ionicSideMenuDelegate, $ionicModal, $ionicBackdrop, $http, dataService)
 {
   // json string containing with origins as keys and a list of destinations from that origin as values
-  $scope.travel_obj = '{ "Princeton": ["New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "New York Penn Station": ["Princeton", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Newark Airport": ["New York Penn Station", "Princeton", "Philadelphia 30th Street", "Trenton Transit Center"], "Philadelphia 30th Street": ["New York Penn Station", "Princeton", "Newark Airport", "Atlantic City", "Trenton Transit Center"], "Trenton Transit Center": ["Princeton", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street"], "Atlantic City": ["Philadelphia 30th Street"] }';
-  $scope.travel_obj = JSON.parse($scope.travel_obj);
-  // get all origin (keys)
-  $scope.all_origins = Object.keys($scope.travel_obj)
-  // origin selected by user
-  $scope.from = null;
-  // destination selected by user
-  $scope.to = null;
-  // search data selected by user -- default today
-  $scope.searchDate = {value:new Date()};
-  // search year selected by user
-  $scope.year = null;
-  // search month selected user
-  $scope.month = null;
-  // search day selected by user
-  $scope.day = null;
-  // retrieved schedules
-  $scope.schedules = 'Loading data...';
+  $scope.travel_obj = '{ "Princeton": ["Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Princeton Junction": ["Princeton", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "New York Penn Station": ["Princeton", "Princeton Junction", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Newark Airport": ["Princeton", "Princeton Junction", "New York Penn Station", "Philadelphia 30th Street", "Trenton Transit Center"], "Philadelphia 30th Street": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Atlantic City", "Trenton Transit Center"], "Trenton Transit Center": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street"], "Atlantic City": ["Philadelphia 30th Street"]}';
+  // list of month strings
+  $scope.months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+  /* PERMANENT ROUTE FORM VARIABLES */
+
+  $scope.travel_obj = JSON.parse($scope.travel_obj); // all possible routes
+  $scope.all_origins = Object.keys($scope.travel_obj) // all possible origins
+
+  /* ORIGIN/DESTINATION VALUES CHOSEN BY USER */
+
+  $scope.from = {value: "Princeton"}; // origin selected by user
+  $scope.to = {value: $scope.travel_obj[$scope.from.value][0]}; // destination selected by user
+  
+  /* DATE VARIABLES CHOSEN BY USER */
+
+  $scope.search_date = {value:new Date()}; // search data selected by user -- default today
+  $scope.year = null; // search year selected by user
+  $scope.month = null; // search month selected user
+  $scope.month_name = null; // search month as string
+  $scope.day = null; // search day selected by user
+  $scope.date_string = null; // search date as string for database search
+
+  /* DATA FROM BACK END */
+
+  $scope.schedules = 'Loading data...'; // retrieved schedules
 
   // current open card
   $scope.current_card = null;
   $scope.i = 0;
   $scope.process = null;
   $scope.train_numbers = [];
-  $scope.live_train_data = 'Loading data...';
+  $scope.live_train_data = '';
 
-  // FUNCTIONS TO SET CONTROLLER VARIABLES
+  function inArray(value, array)
+  {
+    return array.indexOf(value) > -1;
+  }
 
-  $scope.setFrom = function(originString)
+  /************ FUNCTIONS TO SET CONTROLLER VARIABLES **************/
+
+  // if the origin changes, ensure destination has to acceptable value
+  // SCOPE VARIABLES USED: <travel_obj> <to.value> <from.value>
+  $scope.update_dest_val = function()
   {
-    $scope.from = originString;
-  };
-  $scope.setTo = function(destString)
-  {
-    $scope.to = destString;
-  };
+    // no need to update
+    if (inArray($scope.to.value, $scope.travel_obj[$scope.from.value]))
+    {
+      return;
+    }
+    else
+    {
+      $scope.to.value = $scope.travel_obj[$scope.from.value][0]
+    }
+  }
+
+  // set date variables after date is picked
+  // SCOPE VARIABLES USED: <month_name> <month> <day> <year> <date_string>
   $scope.setDateVars = function()
   {
-    $scope.month = $scope.searchDate.value.getMonth()+1;
-    $scope.day = $scope.searchDate.value.getDate();
-    $scope.year = $scope.searchDate.value.getFullYear();
+    $scope.month_name = $scope.months[$scope.search_date.value.getMonth()];
+    $scope.month = $scope.search_date.value.getMonth()+1;
+    $scope.day = $scope.search_date.value.getDate();
+    $scope.year = $scope.search_date.value.getFullYear();
 
     if ($scope.day < 10)
       $scope.day = '0' + $scope.day
@@ -86,10 +109,10 @@ app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicS
 
 
     // need to handle local vs utc timezones
-    $scope.dateString = $scope.year + '-' +$scope.month + '-' + $scope.day;
-    console.log($scope.dateString)
+    $scope.date_string = $scope.year + '-' + $scope.month + '-' + $scope.day;
   };
 
+  // helper function to get train numbers from train name
   function parse_train_num(train_string)
   {
     var words = train_string.split(" ");
@@ -97,6 +120,8 @@ app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicS
     return num.substr(1);
   }
 
+  // get train numbers from selected car for live scraping
+  // SCOPE VARIABLES USED: <train_numbers>
   $scope.setTrains = function(s)
   {
     // reset train array
@@ -116,82 +141,36 @@ app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicS
     }
   };
 
-  // HTTP REQUESTS FOR DATA
+  /********************** HTTP REQUESTS FOR DATA ***********************/
 
-  $scope.get_routes_all = function()
+  // get route data from server
+  // SCOPE VARIABLES USED: <from.value> <to.value> <date_string> <schedules>
+  $scope.get_routes_from_to_on = function()
   {
-    dataService.get_routes_all().then(function(dataResponse) 
-      {
-         $scope.schedules = dataResponse.data;
-      });
-  }
-  $scope.get_routes_from_to = function(from, to)
-  {
-    dataService.get_routes_from_to(from, to).then(function(dataResponse) 
+    dataService.get_routes_from_to_on($scope.from.value, $scope.to.value, $scope.date_string).then(function(dataResponse) 
       {
          $scope.schedules = dataResponse.data;
       });
   }
 
-  $scope.get_routes_from_to_on = function(from, to, dateString)
-  {
-    dataService.get_routes_from_to_on(from, to, dateString).then(function(dataResponse) 
-      {
-         $scope.schedules = dataResponse.data;
-      });
-  }
-
+  // get live scraped data from server
+  // SCOPE VARIABLES USED: <live_train-data>
   $scope.get_live_data = function(train_number)
   {
      dataService.get_live_data(train_number).then(function(dataResponse) 
       {
          $scope.live_train_data = dataResponse.data;
-         console.log("hi")
       });   
   }
 
-  // CARDS STUFF
-  $scope.jumpToCard = function(quote) 
-  {
-    console.log(quote);
-    $scope.quoteSelected = quote;
-    var quotePosition = $ionicPosition.position(angular.element(document.getElementById('card-'+quote.id)));
-    $ionicScrollDelegate.scrollTo(quotePosition.left, quotePosition.top, true);
-  }
+  /*************** CARD MANIPULATION ****************/
 
-  $scope.goToAnchor = function(x) 
-  {
-      var newHash = 'anchor' + x.card_ID;
-      console.log(newHash);
-      $location.hash(newHash);
-      $ionicScrollDelegate.anchorScroll(true);
-      //$ionicScrollDelegate.scrollBy(0, 100);
-
-      /*
-      if ($location.hash() !== newHash) {
-        // set the $location.hash to `newHash` and
-        // $anchorScroll will automatically scroll to it
-        $location.hash('anchor' + x.card_ID);
-      } else {
-        // call $anchorScroll() explicitly,
-        // since $location.hash hasn't changed
-        $ionicScrollDelegate.anchorScroll();
-      }
-      */
-  };
-
-  $scope.flip_card = function(show)
+  $scope.change_cards = function(sched, show)
   {
     // open, so close it
     if (show.settings)
     {
-      if (show.card_ID != $scope.current_card.card_ID)
-      {
-        alert("SHOULDN'T HAPPEN");
-      }
-      console.log("hi");
       $scope.current_card = null;
-      show.transfers = false;
       show.settings = false;
     }
     // closed, so open it
@@ -200,37 +179,12 @@ app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicS
       // check if another card is open -- if so close it
       if ($scope.current_card != null)
       {
-        $scope.current_card.transfers = false;
-        $scope.current_card.settings = false;
+        $scope.current_card.show.settings = false;
       }
-      $scope.current_card = show;
       show.settings = true;
-      //$scope.goToAnchor(show);
+      $scope.current_card = {show: show, info: sched}
     }
     return;
-  }
-  // PROCESS TESTING
-
-  $scope.intervalAlerts = function()
-  {
-    if ($scope.process == null)
-    {
-      alert($scope.i)
-      alert("start em up")
-      $scope.process = setInterval(function() {$scope.i++; console.log($scope.i)}, 1000);
-    }
-    else
-    {
-      alert("ending process");
-      $scope.i = 0;
-      clearInterval($scope.process);
-      $scope.process = null;
-    }
-  }
-
-  $scope.showme = function()
-  {
-    alert($scope.i);
   }
 
   // POP OVER STUFF
@@ -255,10 +209,71 @@ app.controller('starterCtrl', function($scope, $location, $anchorScroll, $ionicS
       };
     };
 
+    // MODAL STUFF
+    $ionicModal.fromTemplateUrl('my-modal.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+  $scope.openModal = function() 
+  {
+    //$ionicBackdrop.retain();
+    $scope.modal.show();
+  };
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+  // Cleanup the modal when we're done with it!
+  $scope.$on('$destroy', function() 
+  {
+    //$ionicBackdrop.release();
+    $scope.modal.remove();
+    $ionicScrollDelegate.$getByHandle('resetModalScroll').forgetScrollPosition(true);
+  });
+
+  // Execute action on hide modal
+  $scope.$on('modal.hidden', function() 
+  {
+    //$ionicBackdrop.release();
+    // Execute action
+  });
+  // Execute action on remove modal
+  $scope.$on('modal.removed', function() 
+  {
+    //$ionicBackdrop.release();
+    // Execute action
+  });
+
+    // SIDE MENU STUFF
+
 
   $scope.showMenu = function()
   {
     $ionicSideMenuDelegate.toggleRight();
+  }
+    // PROCESS TESTING
+
+  $scope.intervalAlerts = function()
+  {
+    if ($scope.process == null)
+    {
+      alert($scope.i)
+      alert("start em up")
+      $scope.process = setInterval(function() {$scope.i++; console.log($scope.i)}, 1000);
+    }
+    else
+    {
+      alert("ending process");
+      $scope.i = 0;
+      clearInterval($scope.process);
+      $scope.process = null;
+    }
+  }
+
+  $scope.showme = function()
+  {
+    alert($scope.i);
   }
 
 })
@@ -278,33 +293,6 @@ app.config(function($stateProvider, $urlRouterProvider) {
       views: {
         'home-view': {
           templateUrl: "templates/home.html"
-        }
-      }
-    })
-
-    .state('app.origin', {
-      url: "/origin",
-      views: {
-        'home-view': {
-          templateUrl: "templates/origin.html"
-        }
-      }
-    })
-
-    .state('app.dest', {
-      url: "/dest",
-      views: {
-        'home-view': {
-          templateUrl: "templates/destination.html"
-        }
-      }
-    })
-
-    .state('app.searchDate', {
-      url: "/searchDate",
-      views: {
-        'home-view': {
-          templateUrl: "templates/pickDate.html"
         }
       }
     })

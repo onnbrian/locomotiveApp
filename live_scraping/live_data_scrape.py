@@ -3,18 +3,20 @@ import urllib2
 import json
 import sys
 
+# LIVE SCRAPING FUNCTION
 def get_train_vals(trainNum):
   base_url = "http://dv.njtransit.com/mobile/train_stops.aspx?sid=PJ&train="
   page = urllib2.urlopen(base_url + trainNum)
   soup = BeautifulSoup(page.read(), "html5lib")
   string = soup.find_all("td")
+  
   totalString = "[\n"
 
   for s in range(len(string)):
     if(string[s].find("p")):
         text = string[s].find("p").get_text()
         text2 = " ".join(text.split())
-  #        print text2
+      # print text2
         splitText = text2.split()
         totalString += "    {\n        \"location\": \""
         if " at " in text2:
@@ -34,14 +36,18 @@ def get_train_vals(trainNum):
         totalString += ","
         totalString += "\n"
 
+  print totalString
+  print totalString[-2]
   if(totalString[:-2]):
     totalString = totalString[:-2]
     totalString += "\n]"
     #  print totalString
     jsonobj = json.loads(totalString)
     return jsonobj
+  else:
+    return "hi"
 
-#print get_train_vals(str(7829))
+print get_train_vals(str(7829))
 
 ''' 
 #string = get_train_vals(sys.argv[1])

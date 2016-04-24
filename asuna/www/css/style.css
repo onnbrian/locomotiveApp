@@ -4,3 +4,60 @@
 	border-width: thin;
 	border: think gray;
 }*/
+.ion-nifty-modal 
+{
+  width: 90%;
+  min-height: 0 !important;
+  height: 450px !important;
+  top: 10%;
+  left: 5%;
+  right: 5%;
+  bottom: 5%;
+  /*background-color: transparent;*/
+  border-radius: 5px;
+border: 1px solid black;
+}
+
+.ion-nifty-modal .ion-modal-content-custom 
+{
+  width: 100%;
+  height: 100%;
+  /*color: #FFF;
+  background-color: white;
+  */
+  border-radius: 5px; 
+}
+
+/* Fix modal backdrop for smaller devices */
+@media (max-width: 679px) 
+{
+  .active .modal-backdrop-bg 
+  {
+    opacity: .5; 
+  }
+  .modal-backdrop-bg 
+  {
+  	/*
+    -webkit-transition: opacity 300ms ease-in-out;
+    transition: opacity 300ms ease-in-out;*/
+    background-color: #000;
+    opacity: 0; 
+  } 
+}
+
+.testbackground
+{
+	background:url(../img/havasu.jpg) !important;
+	background-repeat:no-repeat;
+    background-size:cover;
+    overflow:hidden;
+    z-index: -5;
+}
+.filler
+{
+   position: absolute;
+   top: 30%;
+   margin-top: 30px;/* half of #content height*/
+   left: 0;
+   width: 100%;
+}

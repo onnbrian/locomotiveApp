@@ -4,9 +4,11 @@ import json
 local_url_strings = {
 	'routes_get_all': 'http://localhost:8000/trainsched/routes_all',
 	'routes_get_from_to': 'http://localhost:8000/trainsched/routes_from_to/{0}/{1}',
+	'routes_get_from_to_on': 'http://localhost:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
 	'routes_post_single': 'http://localhost:8000/trainsched/routes_all/',
 	'routes_post_mass': 'http://localhost:8000/trainsched/routes_post_mass/',
 	'routes_delete_from_to': 'http://localhost:8000/trainsched/routes_from_to/{0}/{1}',
+	'routes_delete_from_to_on': 'http://localhost:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
     'transfers_get_all': 'http://localhost:8000/trainsched/transfers_all/',
     'transfers_post_single': 'http://localhost:8000/trainsched/transfers_all/',
     'transfers_post_mass': 'http://localhost:8000/trainsched/transfers_post_mass/',
