@@ -16,10 +16,13 @@
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
+    <script src="js/ng-cordova.min.js"></script>
     <script src="cordova.js"></script>
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
+    <!-- google maps -->
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDqkKzw-deUQFI4Jc2uP8z3XJO4V1jV9YI&sensor=true"></script>
 
   </head>
   <body ng-app="starter" ng-controller="starterCtrl">
@@ -39,7 +42,7 @@
             <ul class="list">
               <a class="item" ui-sref="app.home" menu-close>Search</a>
               <a class="item" menu-close>Tracking</a>
-              <a class="item" menu-close>Saved Routes</a>
+              <a class="item" menu-close ui-sref="app.map">Saved Routes</a>
             </ul>
           </ion-content>
      </ion-side-menu>
@@ -57,6 +60,9 @@
           </ion-nav-buttons>
         </ion-nav-bar>
         <ion-content class="padding test">
+        <button class="button button-full button-positive" ng-click="scheduleSingleNotification()">
+          Show Local Notification (1)
+        </button>
         <div class="filler">
             <label class="item item-input item-select" style="margin-bottom:20px">
               <div class="input-label">
@@ -96,7 +102,7 @@
         <div class="list list-inset" ng-repeat='sched in schedules track by $index' ng-init="show={settings: false}">
           <div class="item item-divider" ng-show="show.settings">
             <div class="button-bar">
-              <a class="button button-clear button-dark button-icon icon ion-ios-clock-outline" ng-click="setTrains(sched); get_live_data(train_numbers[0])" ui-sref="app.liveData"></a>
+              <a class="button button-clear button-dark button-icon icon ion-ios-clock-outline" ng-click="set_live_data(sched)" ui-sref="app.liveData"></a>
               <a class="button button-clear button-dark button-icon icon ion-information" ng-click="openModal()"></a>
             </div>
           </div>
@@ -194,18 +200,31 @@
 
     <script id="templates/liveData.html" type="text/ng-template">
       <ion-view view-title="Live Data">
-        <ion-nav-bar class="bar-calm">
+        <ion-nav-bar class="bar-positive">
           <ion-nav-back-button></ion-nav-back-button>
           <ion-nav-buttons side="right">
+            <button class="button button-icon icon ion-ios-refresh-outline" ng-click="get_live_data()"></button>
+            <button class="button button-icon icon ion-ios-information-outline" ng-click="openModal()"></button>
             <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
           </ion-nav-buttons>
         </ion-nav-bar>
         <ion-content class="padding">
-            <a class="button button-outline button-dark" ng-click="showPopup()">Change train</a>
-            <div class="row" ng-repeat="stop in live_train_data">
-                <div class="col"><h4><b>{{stop['location']}}</b></h4></div>
-                <div class="col"><h4>{{stop['time']}}</h4></div>
-            </div>
+            <label class="item item-input item-select">
+              <div class="input-label">
+                Live Track
+              </div>
+              <select ng-model="live_data.current_num" ng-options="num as num for num in live_data.train_numbers" ng-change="get_live_data()">
+              </select>
+            </label>
+            <ion-list>
+              <ion-item ng-repeat="stop in live_data.data">
+                <div class="row">
+                    <div class="col"><h2><b>{{stop['location']}}</b></h2></div>
+                    <div class="col"><h2>{{stop['time']}}</h2></div>
+                    <div class="col col-10"><button class="button button-small button-icon icon ion-ios-plus-empty" ng-click="set_notification(stop['location'], stop['time'])" ng-show="stop['time'] != 'DEPARTED'" style="font-size:10px"></button></div>
+                </div>
+              </ion-item>
+            </ion-list>
         </ion-content>
       </ion-view>
     </script>
@@ -214,7 +233,7 @@
     <script id="templates/map.html" type="text/ng-template">
       <ion-view view-title="Routing Tracking">
         <ion-content class="padding">
-          <p>Stay tuned... </p>
+          <div id="map" data-tap-disabled="true"></div>
         </ion-content>
       </ion-view>
     </script>

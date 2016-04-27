@@ -47,11 +47,11 @@ border: 1px solid black;
 
 .testbackground
 {
-	background:url(../img/havasu.jpg) !important;
+	background:url(../img/havasu_original.jpg) !important;
 	background-repeat:no-repeat;
     background-size:cover;
     overflow:hidden;
-    z-index: -5;
+    z-index: 1;
 }
 .filler
 {
@@ -60,4 +60,13 @@ border: 1px solid black;
    margin-top: 30px;/* half of #content height*/
    left: 0;
    width: 100%;
+}
+
+.scroll {
+    height: 100%;
+}
+ 
+#map {
+    width: 100%;
+    height: 100%;
 }
