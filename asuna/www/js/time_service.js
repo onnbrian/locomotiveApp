@@ -73,4 +73,16 @@ app.service('time_service', function($http)
     }
   };
 
+  this.mil_remove_seconds = function(value)
+  {
+    if (value.length == 8)
+    {
+      return value.substring(0, 5)
+    }
+    else
+    {
+      return value;
+    }
+  }
+
 });

@@ -118,8 +118,8 @@ def transfers_post_mass(request):
 # Takes in departure time in military time string (e.g. "14:35") 
 # and the live-scraped hour:minute string (e.g. "11:12") and returns 
 # whether the live-scraped time is 'AM' or 'PM'.
-def get_am_pm(departure, live):
-	dep_hm = departure.split(':')
+def get_am_pm(live, arrival_time):
+	dep_hm = arrival_time.split(':')
 	liv_hm = live.split(':')
 
 	dep = datetime.time(int(dep_hm[0]), int(dep_hm[1]))
@@ -165,7 +165,7 @@ def isTimeFormat(input):
 		return False
 
 # LIVE SCRAPING FUNCTION
-def get_train_vals(trainNum, departure):
+def get_train_vals(trainNum, arrival_time):
 	base_url = "http://dv.njtransit.com/mobile/train_stops.aspx?sid=PJ&train="
 	page = urllib2.urlopen(base_url + trainNum)
 	soup = BeautifulSoup(page.read(), "html5lib")
@@ -200,16 +200,16 @@ def get_train_vals(trainNum, departure):
 
 	# iterate through list and add am/pm to valid times
 	for dic in lis:
-		if (isTimeFormat(dic['time']) and isTimeFormat(departure)):
-			dic['time'] = dic['time'] + ' ' + get_am_pm(departure, dic['time']) 
+		if (isTimeFormat(dic['time']) and isTimeFormat(arrival_time)):
+			dic['time'] = dic['time'] + ' ' + get_am_pm(arrival_time, dic['time']) 
 
 	jsonobj = json.dumps(lis)
 	return jsonobj
 
 @api_view(['GET'])
-def live_data_get(request, train_number, departure):
+def live_data_get(request, train_number, arrival_time):
 	if request.method == 'GET':
-		return Response(get_train_vals(train_number, departure))
+		return Response(get_train_vals(train_number, arrival_time))
 
 
 

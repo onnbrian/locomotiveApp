@@ -38,7 +38,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   $scope.current_card = null;
 
   /* DATA FOR LIVE VARIABLES */
-  $scope.live_data = {train_numbers: [], current_num: null, data: ''};
+  $scope.live_data = {arrival_time: null, train_numbers: [], current_num: null, data: ''};
 
   function inArray(value, array)
   {
@@ -84,6 +84,8 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   // SCOPE VARIABLES USED: <train_numbers>
   $scope.set_live_data = function(s)
   {
+    // set arrival time
+    $scope.live_data.arrival_time = time_service.mil_remove_seconds(s['timeEnd']);
     // reset train array
     $scope.live_data.train_numbers = [];
     // get all train names
@@ -111,13 +113,13 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
 
   function format_times(train_obj)
   {
-    train_obj['timeStart'] = time_service.mil_to_standard(train_obj['timeStart']);
-    train_obj['timeEnd'] = time_service.mil_to_standard(train_obj['timeEnd']);
+    train_obj['timeStart_m'] = time_service.mil_to_standard(train_obj['timeStart']);
+    train_obj['timeEnd_m'] = time_service.mil_to_standard(train_obj['timeEnd']);
     var transfers = train_obj['transfers'];
     for (var i = 0; i < transfers.length; i++)
     {
-      transfers[i]['timeDep'] = time_service.mil_to_standard(transfers[i]['timeDep']);
-      transfers[i]['timeArr'] = time_service.mil_to_standard(transfers[i]['timeArr']);
+      transfers[i]['timeDep_m'] = time_service.mil_to_standard(transfers[i]['timeDep']);
+      transfers[i]['timeArr_m'] = time_service.mil_to_standard(transfers[i]['timeArr']);
     }
     return;
   }
@@ -158,9 +160,13 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       maxWidth: 200,
       showDelay: 0
     });
-     data_service.get_live_data($scope.live_data.current_num).then(function(dataResponse) 
+     data_service.get_live_data($scope.live_data.current_num, $scope.live_data.arrival_time).then(function(dataResponse)
       {
          $scope.live_data.data = dataResponse.data;
+         if ($scope.live_data.data == '[]')
+         {
+            $scope.live_data.data = []
+         }
          $ionicLoading.hide();
       });   
   }
