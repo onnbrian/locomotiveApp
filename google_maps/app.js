@@ -108,7 +108,8 @@ var example = angular.module('starter', ['ionic'])
         });
       }
 
-example.controller('MapController', function($scope, $ionicLoading) {
+example.controller('MapController', function($scope, $ionicLoading) 
+{
  
     google.maps.event.addDomListener(window, 'load', function() {
         map = init();

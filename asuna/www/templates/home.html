@@ -1,0 +1,56 @@
+<ion-view view-title="Search" class="testbackground">
+
+  <!-- nav bar start -->
+
+  <ion-nav-bar class="bar-positive">
+    <ion-nav-back-button></ion-nav-back-button>
+    <ion-nav-buttons side="right">
+      <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
+
+  <!-- end nav bar -->
+
+  <ion-content class="padding test">
+
+  <button class="button" ng-click="schedule_notification_now()" > send notification now </button>
+
+    <!-- div class to move items down -->
+    <div class="filler">
+        <!-- input form for origin -->
+
+        <label class="item item-input item-select" style="margin-bottom:20px">
+          <div class="input-label">
+            Origin
+          </div>
+          <select ng-model="from.value" ng-options="location as location for location in all_origins" ng-change="update_dest_val()">
+          </select>
+        </label>
+
+        <!-- end input form for origin -->
+        <!-- input form for destination -->
+
+        <label class="item item-input item-select" style="margin-bottom:20px">
+          <div class="input-label">
+            Destination
+          </div>
+          <select ng-model="to.value" ng-options="location as location for location in travel_obj[from.value]">
+          </select>
+        </label>
+
+        <!-- end input form for destination -->
+        <!-- input form for date -->
+
+        <label class="item item-input">
+          <span class="input-label">Date</span>
+          <input type="date" placeholder="yyyy-MM-dd" ng-model="search_date.obj" required>
+        </label>
+        <button class="button button-block button-positive icon ion-search" ng-click="setDateVars(); get_routes_from_to_on()" ui-sref="app.schedResults"></button>
+
+        <!-- end input form for date -->
+    </div>
+
+    <!-- end div class -->
+
+  </ion-content>
+</ion-view>

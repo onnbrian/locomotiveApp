@@ -1,0 +1,45 @@
+<ion-view view-title="Live Data">
+  
+  <!-- nav bar -->
+
+  <ion-nav-bar class="bar-positive">
+    <ion-nav-back-button></ion-nav-back-button>
+    <ion-nav-buttons side="right">
+      <button class="button button-icon icon ion-ios-refresh-outline" ng-click="get_live_data()"></button>
+      <button class="button button-icon icon ion-ios-information-outline" ng-click="openModal()"></button>
+      <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+    </ion-nav-buttons>
+  </ion-nav-bar>
+  
+  <!-- end nav bar -->
+
+  <ion-content class="padding">
+
+    <!-- change train currently tracking -->
+
+    <label class="item item-input item-select">
+      <div class="input-label">
+        Live Track
+      </div>
+      <select ng-model="live_data.current_num" ng-options="num as num for num in live_data.train_numbers" ng-change="get_live_data()">
+      </select>
+    </label>
+
+    <!-- end train tracking -->
+
+    <!-- list of stops and times -->
+
+    <ion-list>
+      <ion-item ng-repeat="stop in live_data.data">
+        <div class="row">
+            <div class="col"><h2><b>{{stop['location']}}</b></h2></div>
+            <div class="col"><h2>{{stop['time']}}</h2></div>
+            <div class="col col-10"><button class="button button-small button-icon icon ion-ios-plus-empty" ng-click="schedule_notification(stop['location'], stop['time'])" ng-show="stop['time'] != 'DEPARTED'" style="font-size:10px"></button></div>
+        </div>
+      </ion-item>
+    </ion-list>
+
+    <!-- end list -->
+
+  </ion-content>
+</ion-view>

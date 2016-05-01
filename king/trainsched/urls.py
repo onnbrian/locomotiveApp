@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^routes_delete_all/$', views.routes_delete_all),
     url(r'^transfers_all/$', views.transfers_all),
     url(r'^transfers_post_mass/$', views.transfers_post_mass),
-    url(r'^live_data_get/(?P<train_number>\w+)$', views.live_data_get),
+    url(r'^live_data_get/(?P<train_number>\w+)/(?P<departure>\d\d:\d\d)$', views.live_data_get),
 ]

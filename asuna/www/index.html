@@ -21,6 +21,10 @@
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
+    <script src="js/data_service.js"></script>
+    <script src="js/time_service.js"></script>
+    <script src="js/map_service.js"></script>
+    <script src="js/notification_service.js"></script>
     <!-- google maps -->
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDqkKzw-deUQFI4Jc2uP8z3XJO4V1jV9YI&sensor=true"></script>
 
@@ -32,102 +36,20 @@
 
     <script id="templates/background.html" type="text/ng-template">
       <ion-side-menus>
-
         <ion-side-menu-content drag-content="false" >
-      <ion-nav-view name="home-view"></ion-nav-view>
-     </ion-side-menu-content>
+          <ion-nav-view name="home-view"></ion-nav-view>
+        </ion-side-menu-content>
 
-     <ion-side-menu side="right">
-        <ion-content>
+        <ion-side-menu side="right">
+          <ion-content>
             <ul class="list">
               <a class="item" ui-sref="app.home" menu-close>Search</a>
-              <a class="item" menu-close>Tracking</a>
-              <a class="item" menu-close ui-sref="app.map">Saved Routes</a>
+              <a class="item" menu-close ng-click="schedule_notification_now()">Notifications</a>
+              <a class="item" menu-close ui-sref="app.map">Visualize</a>
             </ul>
           </ion-content>
-     </ion-side-menu>
-
-    </ion-side-menus>
-
-    </script>
-
-    <script id="templates/home.html" type="text/ng-template">
-      <ion-view view-title="Search" class="testbackground">
-        <ion-nav-bar class="bar-positive">
-          <ion-nav-back-button></ion-nav-back-button>
-          <ion-nav-buttons side="right">
-            <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
-          </ion-nav-buttons>
-        </ion-nav-bar>
-        <ion-content class="padding test">
-        <button class="button button-full button-positive" ng-click="scheduleSingleNotification()">
-          Show Local Notification (1)
-        </button>
-        <div class="filler">
-            <label class="item item-input item-select" style="margin-bottom:20px">
-              <div class="input-label">
-                Origin
-              </div>
-              <select ng-model="from.value" ng-options="location as location for location in all_origins" ng-change="update_dest_val()">
-              </select>
-            </label>
-
-            <label class="item item-input item-select" style="margin-bottom:20px">
-              <div class="input-label">
-                Destination
-              </div>
-              <select ng-model="to.value" ng-options="location as location for location in travel_obj[from.value]">
-              </select>
-            </label>
-
-            <label class="item item-input">
-              <span class="input-label">Date</span>
-              <input type="date" placeholder="yyyy-MM-dd" ng-model="search_date.value" required>
-            </label>
-            <button class="button button-block button-positive icon ion-search" ng-click="setDateVars(); get_routes_from_to_on()" ui-sref="app.schedResults"></button>
-        </div>
-        </ion-content>
-      </ion-view>
-    </script>
-
-    <script id="templates/scheduleResults.html" type="text/ng-template">
-      <ion-view view-title="{{month_name}} {{day}}, {{year}}" class="testbackground">
-        <ion-nav-bar class="bar-positive">
-          <ion-nav-back-button></ion-nav-back-button>
-          <ion-nav-buttons side="right">
-            <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
-          </ion-nav-buttons>
-        </ion-nav-bar>
-        <ion-content class="padding" overflow-scroll="false" has-subheader="true">
-        <div class="list list-inset" ng-repeat='sched in schedules track by $index' ng-init="show={settings: false}">
-          <div class="item item-divider" ng-show="show.settings">
-            <div class="button-bar">
-              <a class="button button-clear button-dark button-icon icon ion-ios-clock-outline" ng-click="set_live_data(sched)" ui-sref="app.liveData"></a>
-              <a class="button button-clear button-dark button-icon icon ion-information" ng-click="openModal()"></a>
-            </div>
-          </div>
-
-          <div class="item item-text-wrap" ng-click="change_cards(sched, show)">
-            <div class="row">
-              <div class="col"><h2><b>Depart</b></h2></div>
-              <div class="col"><h2>{{sched['timeStart']}}</h2></div>
-            </div>
-            <div class="row">
-              <div class="col"><h2><b>Arrive</b></h2></div>
-              <div class="col"><h2>{{sched['timeEnd']}}</h2></div>
-            </div>
-            <div class="row">
-              <div class="col"><h2><b>Total Travel Time</b></h2></div>
-              <div class="col"><h2>{{sched['duration']}}</h2></div>
-            </div>
-            <div class="row">
-              <div class="col"><h2><b>Transfers</b></h2></div>
-              <div class="col"><h2>{{sched['transfers'].length}}</h2></div>
-            </div>
-          </div>
-        </div>
-        </ion-content>
-      </ion-view>
+        </ion-side-menu>
+      </ion-side-menus>
     </script>
 
     <script id="my-popup.html" type="text/ng-template">
@@ -137,106 +59,5 @@
             </a>
           </div>
     </script>
-
-    <script id="my-modal.html" type="text/ng-template">  
-      <ion-modal-view class="ion-nifty-modal">
-        <div class="ion-modal-content-custom">
-          <ion-content class="padding" delegate-handle="resetModalScroll">
-            <div class="list">
-              <div class="item item-divider">
-                <div class="row">
-                  <div class="col col-20"><i class="icon ion-man" style="font-size:20px"></i></div>
-                  <div class="col"><h2><b>{{from.value}}</b></h2></div>
-                </div>
-              </div>
-              <div class="item item-text-wrap">
-                <div class="row">
-                  <div class="col"><h2><b>Train</b></h2></div>
-                  <div class="col"><h2>{{current_card.info['trainName']}}</h2></div>
-                </div>
-                <div class="row">
-                  <div class="col"><h2><b>Depart</b></h2></div>
-                  <div class="col"><h2>{{current_card.info['timeStart']}}</h2></div>
-                </div>
-              </div>
-                
-              <div class="item item-divider" ng-repeat-start='t in current_card.info["transfers"] track by $index'>
-                <div class="row">
-                  <div class="col col-20"><i class="icon ion-shuffle" style="font-size:20px"></i></div>
-                  <div class="col"><h2><b>{{t['location']}}</b></h2></div>
-                </div>
-              </div>
-              <div class="item item-text-wrap" ng-repeat-end>
-                <div class="row">
-                  <div class="col"><h2><b>Train</b></h2></div>
-                  <div class="col"><h2>{{t['trainName']}}</h2></div>
-                </div>
-                <div class="row">
-                  <div class="col"><h2><b>Arrive</b></h2></div>
-                  <div class="col"><h2>{{t['timeArr']}}</h2></div>
-                </div>
-                <div class="row">
-                  <div class="col"><h2><b>Depart</b></h2></div>
-                  <div class="col"><h2>{{t['timeDep']}}</h2></div>
-                </div>
-              </div>
-              <div class="item item-divider">
-                <div class="row">
-                  <div class="col col-20"><i class="icon ion-ios-location" style="font-size:20px"></i></div>
-                  <div class="col"><h2><b>{{to.value}}</b></h2></div>
-                </div>
-              </div>
-              <div class="item item-text-wrap">
-                <div class="row">
-                  <div class="col"><h2><b>Arrive</b></h2></div>
-                  <div class="col"><h2>{{current_card.info['timeEnd']}}</h2></div>
-                </div>
-              </div>           
-            </div>
-          </ion-content>
-        </div>
-      </ion-modal-view>
-    </script>  
-
-    <script id="templates/liveData.html" type="text/ng-template">
-      <ion-view view-title="Live Data">
-        <ion-nav-bar class="bar-positive">
-          <ion-nav-back-button></ion-nav-back-button>
-          <ion-nav-buttons side="right">
-            <button class="button button-icon icon ion-ios-refresh-outline" ng-click="get_live_data()"></button>
-            <button class="button button-icon icon ion-ios-information-outline" ng-click="openModal()"></button>
-            <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
-          </ion-nav-buttons>
-        </ion-nav-bar>
-        <ion-content class="padding">
-            <label class="item item-input item-select">
-              <div class="input-label">
-                Live Track
-              </div>
-              <select ng-model="live_data.current_num" ng-options="num as num for num in live_data.train_numbers" ng-change="get_live_data()">
-              </select>
-            </label>
-            <ion-list>
-              <ion-item ng-repeat="stop in live_data.data">
-                <div class="row">
-                    <div class="col"><h2><b>{{stop['location']}}</b></h2></div>
-                    <div class="col"><h2>{{stop['time']}}</h2></div>
-                    <div class="col col-10"><button class="button button-small button-icon icon ion-ios-plus-empty" ng-click="set_notification(stop['location'], stop['time'])" ng-show="stop['time'] != 'DEPARTED'" style="font-size:10px"></button></div>
-                </div>
-              </ion-item>
-            </ion-list>
-        </ion-content>
-      </ion-view>
-    </script>
-
-
-    <script id="templates/map.html" type="text/ng-template">
-      <ion-view view-title="Routing Tracking">
-        <ion-content class="padding">
-          <div id="map" data-tap-disabled="true"></div>
-        </ion-content>
-      </ion-view>
-    </script>
-
   </body>
 </html>

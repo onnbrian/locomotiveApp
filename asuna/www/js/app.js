@@ -5,41 +5,12 @@
 // the 2nd parameter is an array of 'requires'
 var app = angular.module('starter', ['ionic', 'ngCordova'])
 
-app.service('dataService', function($http) 
+app.controller('starterCtrl', function($scope, data_service, time_service, map_service, notification_service,
+                                      $ionicPopup, $ionicSideMenuDelegate, $ionicModal, 
+                                       $ionicLoading, $ionicPlatform)
 {
-  delete $http.defaults.headers.common['X-Requested-With'];
-
-  this.get_routes_from_to_on = function(origin, dest, dateString)
-  {
-      // $http() returns a $promise that we can add handlers with .then()
-      return $http(
-      {
-          method: 'GET',
-          //url: 'http://localhost:8000/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
-          url: 'http://54.165.156.225:8000/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
-       });
-  }
-
-  this.get_live_data = function(train_number)
-  {
-      // $http() returns a $promise that we can add handlers with .then()
-      return $http(
-      {
-          method: 'GET',
-          //url: 'http://localhost:8000/trainsched/live_data_get/' + train_number
-          url: 'http://54.165.156.225:8000/trainsched/live_data_get/' + train_number
-       });
-  }
-
-
-});
-
-app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocalNotification, $ionicPopup, $ionicSideMenuDelegate, $ionicModal, $ionicLoading, $ionicPlatform)
-{
-  // json string containing with origins as keys and a list of destinations from that origin as values
+  //json string containing with origins as keys and a list of destinations from that origin as values
   $scope.travel_obj = '{ "Princeton": ["Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Princeton Junction": ["Princeton", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "New York Penn Station": ["Princeton", "Princeton Junction", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Newark Airport": ["Princeton", "Princeton Junction", "New York Penn Station", "Philadelphia 30th Street", "Trenton Transit Center"], "Philadelphia 30th Street": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Atlantic City", "Trenton Transit Center"], "Trenton Transit Center": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street"], "Atlantic City": ["Philadelphia 30th Street"]}';
-  // list of month strings
-  $scope.months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
   /* PERMANENT ROUTE FORM VARIABLES */
 
@@ -51,23 +22,20 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
   $scope.from = {value: "Princeton"}; // origin selected by user
   $scope.to = {value: $scope.travel_obj[$scope.from.value][0]}; // destination selected by user
   
-  /* DATE VARIABLES CHOSEN BY USER */
-
-  $scope.search_date = {value:new Date()}; // search data selected by user -- default today
-  $scope.year = null; // search year selected by user
-  $scope.month = null; // search month selected user
-  $scope.month_name = null; // search month as string
-  $scope.day = null; // search day selected by user
-  $scope.date_string = null; // search date as string for database search
+  /* DATE VARIABLE CHOSEN BY USER */
+  $scope.search_date = {
+                          obj: new Date(),
+                          string: time_service.get_date_string(new Date()),
+                          month: time_service.get_month_name(new Date()),
+                          day: time_service.get_day_string(new Date()),
+                          year: new Date().getFullYear()
+                        }; // search data selected by user -- default today
 
   /* DATA FROM BACK END */
-
   $scope.schedules = 'Loading data...'; // retrieved schedules
 
   // current open card
   $scope.current_card = null;
-  $scope.i = 0;
-  $scope.process = null;
 
   /* DATA FOR LIVE VARIABLES */
   $scope.live_data = {train_numbers: [], current_num: null, data: ''};
@@ -98,19 +66,10 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
   // SCOPE VARIABLES USED: <month_name> <month> <day> <year> <date_string>
   $scope.setDateVars = function()
   {
-    $scope.month_name = $scope.months[$scope.search_date.value.getMonth()];
-    $scope.month = $scope.search_date.value.getMonth()+1;
-    $scope.day = $scope.search_date.value.getDate();
-    $scope.year = $scope.search_date.value.getFullYear();
-
-    if ($scope.day < 10)
-      $scope.day = '0' + $scope.day
-    if ($scope.month < 10)
-      $scope.month = '0' + $scope.month
-
-
-    // need to handle local vs utc timezones
-    $scope.date_string = $scope.year + '-' + $scope.month + '-' + $scope.day;
+    $scope.search_date.string = time_service.get_date_string($scope.search_date.obj);
+    $scope.search_date.day =  time_service.get_day_string($scope.search_date.obj);
+    $scope.search_date.month =  time_service.get_month_name($scope.search_date.obj);
+    $scope.search_date.year =  $scope.search_date.obj.getFullYear();
   };
 
   // helper function to get train numbers from train name
@@ -150,54 +109,15 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
 
   /********************** HTTP REQUESTS FOR DATA ***********************/
 
-  function milToStandard(value) {
-    if (value !== null && value !== undefined){ //If value is passed in
-      if(value.indexOf('AM') > -1 || value.indexOf('PM') > -1){ //If time is already in standard time then don't format.
-        return value;
-      }
-      else 
-      {
-        if(value.length == 8)
-        { //If value is the expected length for military time then process to standard time.
-          var hour = value.substring ( 0,2 ); //Extract hour
-          var minutes = value.substring ( 3,5 ); //Extract minutes
-          var identifier = 'AM'; //Initialize AM PM identifier
-   
-          if(hour == 12){ //If hour is 12 then should set AM PM identifier to PM
-            identifier = 'PM';
-          }
-          if(hour == 0){ //If hour is 0 then set to 12 for standard time 12 AM
-            hour=12;
-          }
-          if(hour > 12){ //If hour is greater than 12 then convert to standard 12 hour format and set the AM PM identifier to PM
-            hour = hour - 12;
-            identifier='PM';
-          }
-          hour = String(hour)
-          if ((hour.length == 2) && hour.charAt(0) == '0')
-          {
-            hour = hour.charAt(1);
-          }
-
-          return hour + ':' + minutes + ' ' + identifier; //Return the constructed standard time
-        }
-        else 
-        { //If value is not the expected length than just return the value as is
-          return value;
-        }
-      }
-    }
-  };
-
   function format_times(train_obj)
   {
-    train_obj['timeStart'] = milToStandard(train_obj['timeStart']);
-    train_obj['timeEnd'] = milToStandard(train_obj['timeEnd']);
+    train_obj['timeStart'] = time_service.mil_to_standard(train_obj['timeStart']);
+    train_obj['timeEnd'] = time_service.mil_to_standard(train_obj['timeEnd']);
     var transfers = train_obj['transfers'];
     for (var i = 0; i < transfers.length; i++)
     {
-      transfers[i]['timeDep'] = milToStandard(transfers[i]['timeDep']);
-      transfers[i]['timeArr'] = milToStandard(transfers[i]['timeArr']);
+      transfers[i]['timeDep'] = time_service.mil_to_standard(transfers[i]['timeDep']);
+      transfers[i]['timeArr'] = time_service.mil_to_standard(transfers[i]['timeArr']);
     }
     return;
   }
@@ -214,7 +134,7 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
       maxWidth: 200,
       showDelay: 0
     });
-    dataService.get_routes_from_to_on($scope.from.value, $scope.to.value, $scope.date_string).then(function(dataResponse) 
+    data_service.get_routes_from_to_on($scope.from.value, $scope.to.value, $scope.search_date.string).then(function(dataResponse) 
       {
         var raw_schedules = dataResponse.data;
         for (i = 0; i < raw_schedules.length; i++)
@@ -238,7 +158,7 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
       maxWidth: 200,
       showDelay: 0
     });
-     dataService.get_live_data($scope.live_data.current_num).then(function(dataResponse) 
+     data_service.get_live_data($scope.live_data.current_num).then(function(dataResponse) 
       {
          $scope.live_data.data = dataResponse.data;
          $ionicLoading.hide();
@@ -269,33 +189,13 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
     return;
   }
 
-  // POP OVER STUFF
-  // Triggered on a button click, or some other target
-  $scope.showPopup = function() 
+  /*************** MODAL STUFF ****************/
+  $ionicModal.fromTemplateUrl('templates/my-modal.html', 
   {
-    $scope.data = {};
-
-      // An elaborate, custom popup
-      var myPopup = $ionicPopup.show(
-      {
-        templateUrl: 'my-popup.html',
-        title: 'Select a Train',
-        subTitle: 'Get Live Route Data',
-        scope: $scope,
-        buttons: [ { text: 'Cancel'} ]
-      });
-
-      $scope.sendOrder = function()
-      {
-        myPopup.close();
-      };
-    };
-
-    // MODAL STUFF
-    $ionicModal.fromTemplateUrl('my-modal.html', {
     scope: $scope,
     animation: 'slide-in-up'
-  }).then(function(modal) {
+  }).then(function(modal) 
+  {
     $scope.modal = modal;
   });
   $scope.openModal = function() 
@@ -311,174 +211,36 @@ app.controller('starterCtrl', function($scope, dataService, $http, $cordovaLocal
     $scope.modal.remove();
   });
 
-  // Execute action on hide modal
-  $scope.$on('modal.hidden', function() 
-  {
-    //$ionicBackdrop.release();
-    // Execute action
-  });
-  // Execute action on remove modal
-  $scope.$on('modal.removed', function() 
-  {
-    //$ionicBackdrop.release();
-    // Execute action
-  });
-
-    // SIDE MENU STUFF
-
-
+  /*************** SIDE-MENU STUFF ****************/
   $scope.showMenu = function()
   {
     $ionicSideMenuDelegate.toggleRight();
   }
 
-    // PROCESS TESTING
-
-  $scope.set_notification = function(location, time)
-  {
-    alert(location + " " + time);
-  }
-
-  $scope.intervalAlerts = function()
-  {
-    if ($scope.process == null)
-    {
-      alert($scope.i)
-      alert("start em up")
-      $scope.process = setInterval(function() {$scope.i++; console.log($scope.i)}, 1000);
-    }
-    else
-    {
-      alert("ending process");
-      $scope.i = 0;
-      clearInterval($scope.process);
-      $scope.process = null;
-    }
-  }
-
-  $scope.showme = function()
-  {
-    alert($scope.i);
-  }
-
-  // LOCATION NOTIFICATIONS
+  /*************** NOTIFICATION STUFF ****************/
   $ionicPlatform.ready(function () 
   {
-    $scope.scheduleSingleNotification = function () 
+    // set notifications here
+    $scope.schedule_notification = function(place, time)
     {
-      if (ionic.Platform.isWebView()) 
-      {
-        $cordovaLocalNotification.schedule(
-        {
-          id: 1,
-          title: 'Warning',
-          text: 'Youre so sexy!',
-          data: {
-            customProperty: 'custom value'
-                }
-        })
-        .then(function (result) 
-        {
-          console.log('Notification 1 triggered');
-        });
-      }
-    };
-  });
-
-  // MAPS
-
-    function fixNames(location)
-    {
-        var start = "Princeton Station, NJ";
-        if (location == "Princeton Junction")
-            start = "LV Princeton Junction";
-        else if (location == "New York Penn Station")
-            start = "Pennsylvania Station";
-        else if (location == "Philadelphia 30th Street")
-            start = "30th Street Station";
-        else if (location == "Trenton Transit")
-            start = "Trenton Transit Center";
-        else if (location == "Newark Airport")
-            start = "Amtrak Station - EWR";
-        else if (location == "Atlantic City")
-            start = "Atlantic City";
-        return start;
+      notification_service.schedule_notification(place, time);
     }
 
-
-  function initMapLocations(location1, location2) {
-
-        var start = fixNames(location1);
-        var end = fixNames(location2);
-        console.log(start)
-        console.log(end)
-        var directionsService = new google.maps.DirectionsService;
-        var directionsDisplay = new google.maps.DirectionsRenderer;
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 7,
-          center: {lat: 40.340166, lng: -74.657889}
-        });
-        directionsDisplay.setMap(map);
-        calculateAndDisplayRoute(start, end, directionsService, directionsDisplay);
-        putGPSonMap(map);
-        return map;
-      } 
-
-      function putGPSonMap(map){
-          var image = {
-          url: 'https://cdn0.iconfinder.com/data/icons/world-issues/500/running_man-64.png',
-    // This marker is 20 pixels wide by 32 pixels high.
-          size: new google.maps.Size(64, 64),
-    // The origin for this image is (0, 0).
-          origin: new google.maps.Point(0, 0),
-    // The anchor for this image is the base of the flagpole at (0, 32).
-          anchor: new google.maps.Point(32, 48)
-        };
-
-          var marker = new google.maps.Marker({map: map, icon:image, animation: google.maps.Animation.BOUNCE});
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-
-            marker.setPosition(pos);
-            //infoWindow.setContent('Location found.');
-           // map.setCenter(pos);
-          }, function() {
-            handleLocationError(true, marker, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, marker, map.getCenter());
-        }
-      }
-
-      function calculateAndDisplayRoute(location1, location2, directionsService, directionsDisplay) {
-        directionsService.route({
-          origin: location1,
-          destination: location2,
-          travelMode: google.maps.TravelMode.TRANSIT
-        }, function(response, status) {
-          if (status === google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-          } else {
-            window.alert('Directions request failed due to ' + status);
-          }
-        });
-      }
-
-    google.maps.event.addDomListener(window, 'load', function() 
+    $scope.schedule_notification_now = function()
     {
-        map = initMapLocations("Princeton", "Princeton Junction");
-        $scope.map = map;
+      notification_service.schedule_notification_now($scope.to.value);
+    }
     });
 
+  /*************** MAP STUFF ****************/
+  $scope.show_map = function(a, b)
+  {
+    $scope.map = map_service.show_map(a, b)
+    //setInterval(2 min, map_service.gps_update())
+  }
 })
 
-app.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
     .state('app', {
