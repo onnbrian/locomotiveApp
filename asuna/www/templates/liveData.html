@@ -1,13 +1,13 @@
-<ion-view view-title="Live Data">
+<ion-view view-title="Live Data" class="wallpaper">
   
   <!-- nav bar -->
 
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
+      <button class="button button-icon icon ion-ios-information-outline" ng-click="openModal(live_data.schedule)"></button>
       <button class="button button-icon icon ion-ios-refresh-outline" ng-click="get_live_data()"></button>
-      <button class="button button-icon icon ion-ios-information-outline" ng-click="openModal()"></button>
-      <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+      <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
   
@@ -17,7 +17,7 @@
 
     <!-- change train currently tracking -->
 
-    <label class="item item-input item-select">
+    <label class="item item-input item-select" style="margin-bottom:20px">
       <div class="input-label">
         Live Track
       </div>
@@ -27,17 +27,31 @@
 
     <!-- end train tracking -->
 
+    <!-- error message -->
+    <div class="list" ng-show="!verify_array(live_data.data)">
+      <div class="item item-text-wrap">
+        <h2>No data is available right now.</h2>
+      </div>
+    </div>
+
+    <!-- end error message -->
+
     <!-- list of stops and times -->
 
     <ion-list>
-      <ion-item ng-repeat="stop in live_data.data">
-        <div class="row">
-            <div class="col"><h2><b>{{stop['location']}}</b></h2></div>
-            <div class="col"><h2>{{stop['time']}}</h2></div>
-            <div class="col col-10"><button class="button button-small button-icon icon ion-ios-plus-empty" ng-click="schedule_notification(stop['location'], stop['time'])" style="font-size:10px"></button></div>
+      <ion-item ng-repeat="stop in live_data.data track by $index">
+        <div style="float:left">
+          <h2><b>{{stop['location']}}</b></h2>
+          <p>{{stop['time']}}</p>
         </div>
+        <div class="notification_icon">
+          <button class="button button-small button-icon icon ion-ios-plus-outline" ng-click="add_notif_popup(stop['location'], stop['time'])" ng-show="show_notif_button(stop['time'])">
+          </button>
+        </div>
+
       </ion-item>
     </ion-list>
+    
 
     <!-- end list -->
 

@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; style-src  'self' 'unsafe-inline' *">
+
     <title></title>
 
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
@@ -44,7 +46,7 @@
           <ion-content>
             <ul class="list">
               <a class="item" ui-sref="app.home" menu-close>Search</a>
-              <a class="item" menu-close ng-click="schedule_notification_now()">Notifications</a>
+              <a class="item" menu-close ui-sref="app.notifications">Notifications</a>
               <a class="item" menu-close ui-sref="app.map">Visualize</a>
             </ul>
           </ion-content>

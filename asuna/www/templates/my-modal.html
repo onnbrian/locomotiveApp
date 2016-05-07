@@ -10,22 +10,22 @@
         <div class="item item-divider">
           <div class="row">
             <div class="col col-20"><i class="icon ion-man" style="font-size:20px"></i></div>
-            <div class="col"><h2><b>{{from.value}}</b></h2></div>
+            <div class="col"><h2><b>{{modal_schedule.origin}}</b></h2></div>
           </div>
         </div>
         <div class="item item-text-wrap">
           <div class="row">
             <div class="col"><h2><b>Train</b></h2></div>
-            <div class="col"><h2>{{current_card.info['trainName']}}</h2></div>
+            <div class="col"><h2>{{modal_schedule['trainName']}}</h2></div>
           </div>
           <div class="row">
             <div class="col"><h2><b>Depart</b></h2></div>
-            <div class="col"><h2>{{current_card.info['timeStart_m']}}</h2></div>
+            <div class="col"><h2>{{modal_schedule['timeStart_m']}}</h2></div>
           </div>
         </div>
           
         <!-- transfers -->
-        <div class="item item-divider" ng-repeat-start='t in current_card.info["transfers"] track by $index'>
+        <div class="item item-divider" ng-repeat-start='t in modal_schedule["transfers"] track by $index'>
           <div class="row">
             <div class="col col-20"><i class="icon ion-shuffle" style="font-size:20px"></i></div>
             <div class="col"><h2><b>{{t['location']}}</b></h2></div>
@@ -51,13 +51,13 @@
         <div class="item item-divider">
           <div class="row">
             <div class="col col-20"><i class="icon ion-ios-location" style="font-size:20px"></i></div>
-            <div class="col"><h2><b>{{to.value}}</b></h2></div>
+            <div class="col"><h2><b>{{modal_schedule.dest}}</b></h2></div>
           </div>
         </div>
         <div class="item item-text-wrap">
           <div class="row">
             <div class="col"><h2><b>Arrive</b></h2></div>
-            <div class="col"><h2>{{current_card.info['timeEnd_m']}}</h2></div>
+            <div class="col"><h2>{{modal_schedule['timeEnd_m']}}</h2></div>
           </div>
         </div>
 

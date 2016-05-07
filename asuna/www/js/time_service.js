@@ -6,7 +6,7 @@ app.service('time_service', function($http)
     var d = date_obj.getDate();
     var y = date_obj.getFullYear();
     if (d < 10)
-      $d = '0' + d
+      d = '0' + d
     if (m < 10)
       m = '0' + m
     return y + '-' + m + '-' + d
@@ -73,6 +73,32 @@ app.service('time_service', function($http)
     }
   };
 
+  this.extract_time_from_obj = function(date_obj, military)
+  {
+    var hour    = date_obj.getHours();
+    var minute  = date_obj.getMinutes();
+    var second  = date_obj.getSeconds(); 
+   
+    if (hour.toString().length == 1) 
+    {
+        var hour = '0' + hour;
+    }
+    if (minute.toString().length == 1) 
+    {
+        var minute = '0' + minute;
+    }
+    if (second.toString().length == 1) 
+    {
+        var second = '0' + second;
+    }
+    var time = hour + ':' + minute + ':' + second;
+    if (military)
+    {
+      return time;
+    }
+    return this.mil_to_standard(time)
+  }
+
   this.mil_remove_seconds = function(value)
   {
     if (value.length == 8)
@@ -83,6 +109,93 @@ app.service('time_service', function($http)
     {
       return value;
     }
+  }
+
+  this.min_to_hours = function(time) 
+  {
+    var hours = Math.floor(time / 60);
+    var minutes = time % 60;
+
+    var abbrev = "";
+    if (hours == 1)
+      abbrev = "1 hr ";
+    if (hours > 1)
+      abbrev = hours.toString().concat(" hrs ");
+
+    var abbrev_1 = "";
+    if (minutes > 0)
+      abbrev_1 = minutes.toString().concat(" min");
+
+    var final = abbrev.concat(abbrev_1);
+    return final;
+  }
+
+  // is <time> a properly formatted string? 
+  this.is_time_string = function(time)
+  {
+    if (typeof time === 'string' || time instanceof String)
+    {
+      if (time.length == 7)
+      {
+        if (time.charAt(1) == ":")
+        {
+          if (!isNaN(parseInt(time.charAt(0))))
+          {
+            if (((!isNaN(parseInt(time.substring(2,4)))) && (parseInt(time.substring(2,4)) >= 0)) && (parseInt(time.substring(2,4)) < 60))
+            {
+              if ((time.charAt(4) == " ") && ((time.substring(5,7) == "AM") || (time.substring(5,7) == "PM")))
+                return true;
+            }
+          }
+        }
+      }
+      else if (time.length == 8)
+      {
+        if (time.charAt(2) == ":")
+        {
+          if ((!isNaN(parseInt(time.substring(0,2)))) && ((parseInt(time.substring(0,2)) > 0) && (parseInt(time.substring(0,2)) < 13)))
+          {
+            if (((!isNaN(parseInt(time.substring(3,5)))) && (parseInt(time.substring(3,5)) >= 0)) && (parseInt(time.substring(3,5)) < 60))
+            {
+              if ((time.charAt(5) == " ") && ((time.substring(6,8) == "AM") || (time.substring(6,8) == "PM")))
+                return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  this.is_same_day = function(d1, d2)
+  {
+    var y1 = d1.getFullYear();
+    var y2 = d2.getFullYear();
+    var m1 = d1.getMonth();
+    var m2 = d2.getMonth();
+    var date1 = d1.getDate();
+    var date2 = d2.getDate();
+    if (y1 != y2)
+    {
+      console.log("year");
+      console.log(y1 + ', ' + y2);
+      return false;
+    }
+    else if (m1 != m2)
+    {
+      console.log("month");
+      console.log(m1 + ', ' + m2);
+      return false;
+    }
+    else if (date1 != date2)
+    {
+      console.log("date")
+      console.log(date1 + ', ' + date2);
+      return false;
+    }
+    return true;
+    //console.log(d2)
+    //return d1.getFullYear() == d2.getFullYear() && d1.getDate() == d2.getDate() && d1.getMonth() == d2.getMonth();
   }
 
 });

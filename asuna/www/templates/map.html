@@ -3,12 +3,14 @@
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
-      <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+      <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
   <ion-content class="padding">
-    <button ng-click="show_map(from.value, to.value);">Visualize</button>
-    <div id="map" data-tap-disabled="true"></div>
+  <!--
+    <button ng-init="show_map(from.value, to.value)">Visualize</button>
+  -->
+    <div id="map" data-tap-disabled="true" ng-init="show_map(from.value, to.value)"></div>
   </ion-content>
 </ion-view>
 <!--</script>-->

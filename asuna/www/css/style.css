@@ -1,9 +1,5 @@
-/* Empty. Add your own CSS if you like */
-/*.col {
-	border-style: solid;
-	border-width: thin;
-	border: think gray;
-}*/
+/* modal stuff */
+
 .ion-nifty-modal 
 {
   width: 90%;
@@ -45,22 +41,31 @@ border: 1px solid black;
   } 
 }
 
-.testbackground
+/* background stuff */
+
+.wallpaper
 {
-	background:url(../img/havasu_original.jpg) !important;
+	/*background:url(../img/havasu_original.jpg) !important;*/
+  /*background:url(../img/city_1.jpg) !important;*/
+  background:url(../img/city_3_484x860_2.jpg) !important;
 	background-repeat:no-repeat;
     background-size:cover;
     overflow:hidden;
     z-index: 1;
 }
-.filler
+
+/* moving stuff down on homepage */
+
+.home_page_forms
 {
    position: absolute;
    top: 30%;
-   margin-top: 30px;/* half of #content height*/
+   /*margin-top: 50px;/* half of #content height*/
    left: 0;
    width: 100%;
 }
+
+/* map stuff */
 
 .scroll {
     height: 100%;
@@ -69,4 +74,55 @@ border: 1px solid black;
 #map {
     width: 100%;
     height: 100%;
+}
+
+/* popover stuff */
+
+.popover {
+  height: auto !important;
+}
+.popover ion-header-bar {
+  position: relative;
+}
+.popover ion-content {
+  top: 0;
+  position: relative;
+}
+.popover-inner-content {
+  width: 100%;
+  padding: 5px 20px;
+}
+
+.vertical_center
+{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);  
+}
+
+.notification_icon
+{
+  /*position: absolute;*/
+  right:20px;
+  position:absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.grid_outline
+{
+  border: 1px solid;
+  border-radius: 5px; 
+}
+
+.notif_buttons_center
+{
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.center_text
+{
+  text-align:center;
 }

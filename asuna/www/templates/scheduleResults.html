@@ -1,17 +1,26 @@
-<ion-view view-title="{{search_date.month}} {{search_date.day}}, {{search_date.year}}" class="testbackground">
+<ion-view view-title="{{search_date.month}} {{search_date.day}}, {{search_date.year}}" class="wallpaper">
   
   <!-- nav bar start -->
 
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
-      <button class="button button-icon icon ion-android-more-vertical" ng-click="showMenu()" ></button>
+      <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
 
   <!-- nav bar end -->
 
-  <ion-content class="padding" overflow-scroll="false" has-subheader="true">
+  <ion-content class="padding" overflow-scroll="true" has-subheader="true">
+
+
+    <!-- error message -->
+    <div class="list" ng-show="!verify_array(schedules)">
+      <div class="item item-text-wrap">
+        <h2>No data is available right now.</h2>
+      </div>
+    </div>
+    <!-- end error message -->
 
     <!-- start list of available routes -->
 
@@ -21,8 +30,11 @@
 
       <div class="item item-divider" ng-show="show.settings">
         <div class="button-bar">
+          <!--
           <a class="button button-clear button-dark button-icon icon ion-ios-clock-outline" ng-click="set_live_data(sched)" ui-sref="app.liveData"></a>
-          <a class="button button-clear button-dark button-icon icon ion-information" ng-click="openModal()"></a>
+        -->
+          <a class="button button-clear button-small button-dark button-icon icon ion-ios-pulse" ng-click="set_live_data(sched, null)"></a>
+          <a class="button button-clear button-small button-dark button-icon icon ion-information" ng-click="openModal(current_card.info)"></a>
         </div>
       </div>
 
@@ -40,7 +52,7 @@
           <div class="col"><h2>{{sched['timeEnd_m']}}</h2></div>
         </div>
         <div class="row">
-          <div class="col"><h2><b>Total Travel Time</b></h2></div>
+          <div class="col"><h2><b>Duration</b></h2></div>
           <div class="col"><h2>{{sched['duration']}}</h2></div>
         </div>
         <div class="row">

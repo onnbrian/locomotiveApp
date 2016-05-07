@@ -203,8 +203,7 @@ def get_train_vals(trainNum, arrival_time):
 		if (isTimeFormat(dic['time']) and isTimeFormat(arrival_time)):
 			dic['time'] = dic['time'] + ' ' + get_am_pm(dic['time'], arrival_time) 
 
-	jsonobj = json.dumps(lis)
-	return jsonobj
+	return lis
 
 @api_view(['GET'])
 def live_data_get(request, train_number, arrival_time):

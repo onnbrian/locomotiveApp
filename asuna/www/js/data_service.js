@@ -15,12 +15,13 @@ app.service('data_service', function($http)
 
   this.get_live_data = function(train_number, arrival_time)
   {
+    console.log(train_number);
     // $http() returns a $promise that we can add handlers with .then()
     return $http(
     {
         method: 'GET',
-        url: 'http://localhost:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
-        //url: 'http://54.165.156.225:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
+        //url: 'http://localhost:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
+        url: 'http://54.165.156.225:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
     });
   }
 });

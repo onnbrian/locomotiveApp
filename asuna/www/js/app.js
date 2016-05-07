@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 var app = angular.module('starter', ['ionic', 'ngCordova'])
 
-app.controller('starterCtrl', function($scope, data_service, time_service, map_service, notification_service,
-                                      $ionicPopup, $ionicSideMenuDelegate, $ionicModal, 
-                                       $ionicLoading, $ionicPlatform)
+app.controller('starterCtrl', function($scope, data_service, time_service, map_service, notification_service, $state,
+                                      $ionicPopup, $ionicSideMenuDelegate, $ionicModal, $ionicPopover,
+                                      $ionicLoading, $ionicPlatform, $cordovaLocalNotification, $rootScope)
 {
   //json string containing with origins as keys and a list of destinations from that origin as values
   $scope.travel_obj = '{ "Princeton": ["Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Princeton Junction": ["Princeton", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "New York Penn Station": ["Princeton", "Princeton Junction", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Newark Airport": ["Princeton", "Princeton Junction", "New York Penn Station", "Philadelphia 30th Street", "Trenton Transit Center"], "Philadelphia 30th Street": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Atlantic City", "Trenton Transit Center"], "Trenton Transit Center": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street"], "Atlantic City": ["Philadelphia 30th Street"]}';
@@ -32,13 +32,21 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
                         }; // search data selected by user -- default today
 
   /* DATA FROM BACK END */
-  $scope.schedules = 'Loading data...'; // retrieved schedules
+  $scope.schedules = []; // retrieved schedules
 
   // current open card
   $scope.current_card = null;
 
   /* DATA FOR LIVE VARIABLES */
-  $scope.live_data = {arrival_time: null, train_numbers: [], current_num: null, data: ''};
+  $scope.live_data = {
+                        date: null,
+                        schedule: null,
+                        train_numbers: [], 
+                        current_num: null, 
+                        data: []
+                     };
+
+  $scope.all_notifications = [];
 
   function inArray(value, array)
   {
@@ -70,6 +78,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     $scope.search_date.day =  time_service.get_day_string($scope.search_date.obj);
     $scope.search_date.month =  time_service.get_month_name($scope.search_date.obj);
     $scope.search_date.year =  $scope.search_date.obj.getFullYear();
+    console.log($scope.search_date.string)
   };
 
   // helper function to get train numbers from train name
@@ -82,12 +91,51 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
 
   // get train numbers from selected car for live scraping
   // SCOPE VARIABLES USED: <train_numbers>
-  $scope.set_live_data = function(s)
+  $scope.set_live_data = function(s, current_train_num)
   {
-    // set arrival time
-    $scope.live_data.arrival_time = time_service.mil_remove_seconds(s['timeEnd']);
+    var sched_search_date = $scope.search_date.obj;
+    /*
+    var sched_search_date = new Date();
+    
+    sched_search_date.setUTCFullYear(s['searchDate'].substring(0, 4));
+    sched_search_date.setUTCMonth(s['searchDate'].substring(5, 7) - 1);
+    sched_search_date.setUTCDate(s['searchDate'].substring(8, 10));
+    console.log(sched_search_date);*/
+/*
+    //var sched_search_date = new Date(s['searchDate'] + ' 12:00:00');
+    console.log($scope.search_date.obj);
+    console.log(sched_search_date);
+    console.log(time_service.is_same_day(new Date(), sched_search_date)); 
+    console.log(new Date());
+    console.log(sched_search_date);
+    // return if search date is not today
+    if (!time_service.is_same_day(new Date(), sched_search_date))
+    {
+      // make sure date is today
+      var alertPopup = $ionicPopup.alert(
+      {
+        title: 'Live Tracking',
+        template: "This feature is only available for today's date."
+      });
+
+      alertPopup.then(function(res) 
+      {
+        console.log('tried to scrape for bad date');
+      });
+      return;
+    }
+  */
+    $state.go('app.liveData');
+
+    // set date
+    $scope.live_data.date = sched_search_date;
+
+    // set schedule
+    $scope.live_data.schedule = s;
+
     // reset train array
     $scope.live_data.train_numbers = [];
+
     // get all train names
     $scope.live_data.train_numbers.push(s["trainName"]);
     var transfers = s['transfers'];
@@ -102,8 +150,15 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       $scope.live_data.train_numbers[i] = parse_train_num($scope.live_data.train_numbers[i]);
     };
 
-    // set current train number
-    $scope.live_data.current_num = $scope.live_data.train_numbers[0]
+    if (current_train_num == null)
+    {
+      // set current train number
+      $scope.live_data.current_num = $scope.live_data.train_numbers[0];
+    }
+    else
+    {
+      $scope.live_data.current_num = current_train_num;
+    }
 
     // get data
     $scope.get_live_data();
@@ -121,6 +176,12 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       transfers[i]['timeDep_m'] = time_service.mil_to_standard(transfers[i]['timeDep']);
       transfers[i]['timeArr_m'] = time_service.mil_to_standard(transfers[i]['timeArr']);
     }
+
+    train_obj['duration'] = time_service.min_to_hours(train_obj['duration']);
+
+    // remove seconds from military time
+    train_obj['timeStart'] = time_service.mil_remove_seconds(train_obj['timeStart']);
+    train_obj['timeEnd'] = time_service.mil_remove_seconds(train_obj['timeEnd']);
     return;
   }
 
@@ -134,7 +195,8 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       animation: 'fade-in',
       showBackdrop: false,
       maxWidth: 200,
-      showDelay: 0
+      showDelay: 0,
+      duration: 20000
     });
     data_service.get_routes_from_to_on($scope.from.value, $scope.to.value, $scope.search_date.string).then(function(dataResponse) 
       {
@@ -145,6 +207,12 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
         }
          $scope.schedules = raw_schedules;
          $ionicLoading.hide();
+      },
+      function(dataResponse)
+      {
+        // set to empty array
+        $scope.schedules = [];
+        $ionicLoading.hide();
       });
   }
 
@@ -158,17 +226,39 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       animation: 'fade-in',
       showBackdrop: false,
       maxWidth: 200,
-      showDelay: 0
+      showDelay: 0,
+      duration: 20000
     });
-     data_service.get_live_data($scope.live_data.current_num, $scope.live_data.arrival_time).then(function(dataResponse)
+
+    //var mil_arr_time = time_service.mil_remove_seconds($scope.live_data.schedule['timeEnd']);
+
+     data_service.get_live_data($scope.live_data.current_num, 
+                                $scope.live_data.schedule['timeEnd']).then(function(dataResponse)
       {
          $scope.live_data.data = dataResponse.data;
          if ($scope.live_data.data == '[]')
          {
             $scope.live_data.data = []
          }
+
          $ionicLoading.hide();
-      });   
+      },
+      function(dataResponse)
+      {
+        // set to empty array
+        $scope.live_data.data = [];
+        $ionicLoading.hide();
+      });  
+  }
+
+  /* Error check data */
+  $scope.verify_array = function(array)
+  { 
+    if (typeof array != "undefined" && array != null && array.length > 0)
+    {
+      return true;
+    }
+    return false;
   }
 
   /*************** CARD MANIPULATION ****************/
@@ -204,8 +294,9 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   {
     $scope.modal = modal;
   });
-  $scope.openModal = function() 
+  $scope.openModal = function(schedule) 
   {
+    $scope.modal_schedule = schedule;
     $scope.modal.show();
   };
   $scope.closeModal = function() {
@@ -217,6 +308,24 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     $scope.modal.remove();
   });
 
+  /*************** POPOVER STUFF ****************/
+  $ionicPopover.fromTemplateUrl('templates/popover_settings.html', 
+  {
+    scope: $scope
+  }).then(function(popover) 
+  {
+    $scope.popover = popover;
+  });
+  
+  $scope.openPopover = function($event) 
+  {
+    $scope.popover.show($event);
+  };
+  $scope.closePopover = function() 
+  {
+    $scope.popover.hide();
+  };
+
   /*************** SIDE-MENU STUFF ****************/
   $scope.showMenu = function()
   {
@@ -224,21 +333,223 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   /*************** NOTIFICATION STUFF ****************/
+
+  $scope.get_notifications = function()
+  {
+    //$scope.all_notifications = notification_service.get_notifications();
+    //$scope.all_notifications = $cordovaLocalNotification.getAll();
+    $cordovaLocalNotification.getAllScheduled().then(function(all_notifs) 
+    {
+      $scope.all_notifications = [];
+      // parse data here
+      for (var i = 0; i < all_notifs.length; i++)
+      {
+        console.log(JSON.stringify(all_notifs[i]));
+
+        var data = JSON.parse(all_notifs[i].data);
+        var schedule = data['schedule'];
+        var date = new Date(data['date_in_miliseconds']);
+        var stop = data['stop']
+        var deadline = new Date(data['deadline']);
+        var cushion = data['cushion'];
+        var deadline_no_cushion = new Date(deadline.getTime() + cushion*60000);
+        var deadline_time_nc = time_service.extract_time_from_obj(deadline_no_cushion, false);
+        var deadline_time = time_service.extract_time_from_obj(deadline, false);
+        var last_updated = data['last_updated'];
+        var notif_rep = {
+                          id: all_notifs[i].id,
+                          schedule: schedule,
+                          date: date,
+                          stop: stop,
+                          deadline: deadline,
+                          deadline_time: deadline_time,
+                          deadline_time_nc: deadline_time_nc,
+                          cushion: cushion,
+                          train_num: data['train_num'],
+                          last_updated: last_updated
+                        };
+        $scope.all_notifications.push(notif_rep);
+      }
+
+      $scope.all_notifications.sort(function (a, b) 
+      {
+        return a.deadline - b.deadline;
+      });
+    });
+  }
+
+  $scope.alert_notifications = function()
+  {
+    $cordovaLocalNotification.get(1, function(n)
+    {
+      console.log(n.text);
+    });
+    console.log("checking if 1 exists")
+    $cordovaLocalNotification.isScheduled(1, function (present) 
+    {
+      alert(present ? "present" : "not found");
+    });
+    console.log(JSON.stringify($cordovaLocalNotification.isScheduled(1)))
+    console.log(JSON.stringify($cordovaLocalNotification.getScheduledIds()))
+    notification_service.update_all_notifications();
+  }
+
+  $scope.logScheduled = function() 
+  {
+    $cordovaLocalNotification.getScheduledIds().then(function(num) 
+    {
+      console.log(JSON.stringify(num));
+    });
+    console.log(JSON.stringify($scope.all_notifications));
+  }
+
+  $scope.show_notif_button = function(string)
+  {
+    return time_service.is_time_string(string);
+  }
+
   $ionicPlatform.ready(function () 
   {
-    // set notifications here
-    $scope.schedule_notification = function(place, time)
+    cordova.plugins.backgroundMode.enable();
+    cordova.plugins.backgroundMode.setDefaults(
     {
-      notification_service.schedule_notification(place, time);
-    }
+      title:  "Locomotive",
+      ticker: "Locomotive background tracking mode",
+      text:   "Tracking set notifications"
+    })
+
+    /* START UP UPDATING FUNCTION */
+    setInterval(notification_service.update_all_notifications, 120000);
+
+
+    $rootScope.$on('$cordovaLocalNotification:schedule', function (event, notification, state) 
+    {
+      var alertPopup = $ionicPopup.show(
+      {
+        title: 'Notification successfully set.'
+      });
+      setTimeout(function() 
+      {
+        alertPopup.close(); //close the popup after 3 seconds for some reason
+      }, 1000);
+      console.log("scheduled")
+      console.log(notification.text);
+    });
+
+    $rootScope.$on('$cordovaLocalNotification:trigger', function (event, notification, state) 
+    {
+      $scope.all_notifications = $scope.get_notifications();
+    });
+
+    $rootScope.$on('$cordovaLocalNotification:cancel', function (event, notification, state) 
+    {
+      $scope.all_notifications = $scope.get_notifications();
+    });
+
+    $rootScope.$on('$cordovaLocalNotification:cancelall', function (event, state) 
+    {
+      $scope.all_notifications = $scope.get_notifications();
+    });
 
     $scope.schedule_notification_now = function()
     {
       notification_service.schedule_notification_now($scope.to.value);
     }
+  });
+
+  // schedule a notification
+  $scope.add_notif_popup = function(place, time) 
+  {
+    /* DATA TO SET NOTIFICATION */
+    $scope.notif_template = {cushion: 10, place: place, time: time};
+    // An elaborate, custom popup
+    var myPopup = $ionicPopup.show(
+    {
+      templateUrl: "templates/notif_popup.html",
+      title: "Create Notification",
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>Set</b>',
+          type: 'button-positive',
+          onTap: function(e) 
+          {
+            notification_service.schedule_notification($scope.live_data, place, time, $scope.notif_template.cushion);
+          }
+        }
+      ]
     });
+    myPopup.then(function(res) {
+      console.log('Tapped!', res);
+    });
+    setTimeout(function() { myPopup.close(); }, 15000);
+  }
+
+  // remove a notification
+  $scope.remove_notif_popup = function(notif) 
+  {
+     var confirmPopup = $ionicPopup.confirm(
+     {
+       title: 'Cancel Notification',
+       template: 'Are you sure you want to cancel this notification?'
+     });
+
+     confirmPopup.then(function(res) 
+     {
+       if(res) 
+       {
+          $cordovaLocalNotification.cancel(notif.id);
+       } 
+       else 
+       {
+         console.log('Do not delete');
+       }
+     });
+   };
+
+   // clear all notifications currently scheduled
+  $scope.clearall_notif_popup = function() 
+  {
+    $cordovaLocalNotification.getScheduledIds().then(function(all_ids)
+    {
+      // make sure ids are all length 0
+      if (all_ids.length == 0)
+      {
+        var alertPopup = $ionicPopup.alert(
+        {
+          title: 'Clear Notifications',
+          template: 'No notifications are currently set'
+        });
+
+        alertPopup.then(function(res) 
+        {
+          console.log('tried to clear 0 notifications');
+        });
+        return;
+      }
+      var confirmPopup = $ionicPopup.confirm(
+      {
+        title: 'Clear Notifications',
+        template: 'Are you sure you want to clear all notifications?'
+      });
+
+      confirmPopup.then(function(res) 
+      {
+        if(res) 
+        {
+          $cordovaLocalNotification.cancelAll();
+        } 
+        else 
+        {
+          console.log('Do not delete');
+        }
+      });
+   });
+  };
 
   /*************** MAP STUFF ****************/
+
   $scope.show_map = function(a, b)
   {
     $scope.map = map_service.show_map(a, b)
@@ -288,6 +599,15 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       views: {
         'home-view': {
           templateUrl: "templates/map.html"
+        }
+      }
+    })
+
+    .state('app.notifications', {
+      url: "/notifications",
+      views: {
+        'home-view': {
+          templateUrl: "templates/notifications.html"
         }
       }
     })
