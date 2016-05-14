@@ -9,7 +9,7 @@ app.service('data_service', function($http)
       {
           method: 'GET',
           //url: 'http://localhost:8000/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
-          url: 'http://54.165.156.225:8000/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
+          url: 'http://54.165.156.225/trainsched/routes_from_to_on/' + origin + '/' + dest + '/' + dateString
        });
   }
 
@@ -22,7 +22,7 @@ app.service('data_service', function($http)
     {
         method: 'GET',
         //url: 'http://localhost:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
-        url: 'http://54.165.156.225:8000/trainsched/live_data_get/' + train_number + '/' + arrival_time
+        url: 'http://54.165.156.225/trainsched/live_data_get/' + train_number + '/' + arrival_time
     });
   }
 });
