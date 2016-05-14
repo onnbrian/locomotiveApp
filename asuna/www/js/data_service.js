@@ -2,9 +2,9 @@ app.service('data_service', function($http)
 {
   delete $http.defaults.headers.common['X-Requested-With'];
 
+  // get route data with <origin> <dest> with search date <dateString>
   this.get_routes_from_to_on = function(origin, dest, dateString)
   {
-      // $http() returns a $promise that we can add handlers with .then()
       return $http(
       {
           method: 'GET',
@@ -13,6 +13,7 @@ app.service('data_service', function($http)
        });
   }
 
+  // get route data 
   this.get_live_data = function(train_number, arrival_time)
   {
     console.log(train_number);

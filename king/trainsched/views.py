@@ -11,8 +11,11 @@ from bs4 import BeautifulSoup
 import urllib2
 import json
 
-# Views for <Trainroute> model/serializer
+'''
+FUNCTIONS FOR MANIPULATING TRAINROUTE DATA IN DATABASE 
+'''
 
+# API view for get a list of ALL train route data or post one train route
 @api_view(['GET', 'POST'])
 def routes_all(request):
 	"""
@@ -30,6 +33,7 @@ def routes_all(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# API view to delete all train route data from <origin> to <dest>
 @api_view(['GET', 'DELETE'])
 def routes_from_to(request, origin, dest):
 	"""
@@ -49,7 +53,7 @@ def routes_from_to(request, origin, dest):
 			route.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+# API view to delete all train route data from <origin> to <dest> on <searchDate>
 @api_view(['GET', 'DELETE'])
 def routes_from_to_on(request, origin, dest, searchDate):
 	"""
@@ -69,6 +73,7 @@ def routes_from_to_on(request, origin, dest, searchDate):
 			route.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
+# API view to post a list of train route data 
 @api_view(['POST'])
 def routes_post_mass(request):
 	if request.method == 'POST':
@@ -78,6 +83,7 @@ def routes_post_mass(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# API view to delete ALL route currently in database
 @api_view(['DELETE'])
 def routes_delete_all(request):
 	if request.method == 'DELETE':
@@ -86,7 +92,11 @@ def routes_delete_all(request):
 			route.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
-# Views for <Transfer> model/serializer
+'''
+FUNCTIONS FOR MANIPULATING TRANSFER DATA IN DATABASE
+'''
+
+# get all transfers in database or post a new one
 @api_view(['GET', 'POST'])
 def transfers_all(request):
 	"""
@@ -104,6 +114,7 @@ def transfers_all(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# post a list of new transfers to database
 @api_view(['POST'])
 def transfers_post_mass(request):
 	if request.method == 'POST':
@@ -113,11 +124,10 @@ def transfers_post_mass(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
 # Takes in departure time in military time string (e.g. "14:35") 
 # and the live-scraped hour:minute string (e.g. "11:12") and returns 
 # whether the live-scraped time is 'AM' or 'PM'.
+# this is necessary as live scraped times do not have AM/PM attached so they must be inferred
 def get_am_pm(live, arrival_time):
 	dep_hm = arrival_time.split(':')
 	liv_hm = live.split(':')
@@ -164,7 +174,8 @@ def isTimeFormat(input):
 	except ValueError:
 		return False
 
-# LIVE SCRAPING FUNCTION
+# LIVE SCRAPING FUNCTION to scrape data for <trainNum>
+# add AM/PM to each scraped time before returning
 def get_train_vals(trainNum, arrival_time):
 	base_url = "http://dv.njtransit.com/mobile/train_stops.aspx?sid=PJ&train="
 	page = urllib2.urlopen(base_url + trainNum)
@@ -205,6 +216,9 @@ def get_train_vals(trainNum, arrival_time):
 
 	return lis
 
+# function to get data live scraped from NJ Transit website
+# containing estimated arrival times at stops for <train_num> with AM/PM inferred using <arrival_time>
+# when corresponding URL is visited
 @api_view(['GET'])
 def live_data_get(request, train_number, arrival_time):
 	if request.method == 'GET':

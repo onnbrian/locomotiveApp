@@ -56,7 +56,6 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   /************ FUNCTIONS TO SET CONTROLLER VARIABLES **************/
 
   // if the origin changes, ensure destination has to acceptable value
-  // SCOPE VARIABLES USED: <travel_obj> <to.value> <from.value>
   $scope.update_dest_val = function()
   {
     // no need to update
@@ -71,7 +70,6 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   // set date variables after date is picked
-  // SCOPE VARIABLES USED: <month_name> <month> <day> <year> <date_string>
   $scope.setDateVars = function()
   {
     $scope.search_date.string = time_service.get_date_string($scope.search_date.obj);
@@ -90,41 +88,11 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   // get train numbers from selected car for live scraping
-  // SCOPE VARIABLES USED: <train_numbers>
+  // set live data for view
   $scope.set_live_data = function(s, current_train_num)
   {
     var sched_search_date = $scope.search_date.obj;
-    /*
-    var sched_search_date = new Date();
-    
-    sched_search_date.setUTCFullYear(s['searchDate'].substring(0, 4));
-    sched_search_date.setUTCMonth(s['searchDate'].substring(5, 7) - 1);
-    sched_search_date.setUTCDate(s['searchDate'].substring(8, 10));
-    console.log(sched_search_date);*/
-/*
-    //var sched_search_date = new Date(s['searchDate'] + ' 12:00:00');
-    console.log($scope.search_date.obj);
-    console.log(sched_search_date);
-    console.log(time_service.is_same_day(new Date(), sched_search_date)); 
-    console.log(new Date());
-    console.log(sched_search_date);
-    // return if search date is not today
-    if (!time_service.is_same_day(new Date(), sched_search_date))
-    {
-      // make sure date is today
-      var alertPopup = $ionicPopup.alert(
-      {
-        title: 'Live Tracking',
-        template: "This feature is only available for today's date."
-      });
 
-      alertPopup.then(function(res) 
-      {
-        console.log('tried to scrape for bad date');
-      });
-      return;
-    }
-  */
     $state.go('app.liveData');
 
     // set date
@@ -166,6 +134,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
 
   /********************** HTTP REQUESTS FOR DATA ***********************/
 
+  // format times from retrieved data
   function format_times(train_obj)
   {
     train_obj['timeStart_m'] = time_service.mil_to_standard(train_obj['timeStart']);
@@ -186,7 +155,6 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   // get route data from server
-  // SCOPE VARIABLES USED: <from.value> <to.value> <date_string> <schedules>
   $scope.get_routes_from_to_on = function()
   {
     $ionicLoading.show(
@@ -217,7 +185,6 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   // get live scraped data from server
-  // SCOPE VARIABLES USED: <live_train-data>
   $scope.get_live_data = function()
   {
     $ionicLoading.show(
@@ -229,8 +196,6 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       showDelay: 0,
       duration: 20000
     });
-
-    //var mil_arr_time = time_service.mil_remove_seconds($scope.live_data.schedule['timeEnd']);
 
      data_service.get_live_data($scope.live_data.current_num, 
                                 $scope.live_data.schedule['timeEnd']).then(function(dataResponse)
@@ -263,6 +228,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
 
   /*************** CARD MANIPULATION ****************/
 
+  // swap open cards when user selects new one
   $scope.change_cards = function(sched, show)
   {
     // open, so close it
@@ -286,6 +252,8 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   /*************** MODAL STUFF ****************/
+
+  // functions to open/close model for view complete train schedule information
   $ionicModal.fromTemplateUrl('templates/my-modal.html', 
   {
     scope: $scope,
@@ -309,6 +277,8 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   });
 
   /*************** POPOVER STUFF ****************/
+
+  // functions for opening/closing options toolbar
   $ionicPopover.fromTemplateUrl('templates/popover_settings.html', 
   {
     scope: $scope
@@ -326,35 +296,39 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     $scope.popover.hide();
   };
 
-  /*************** SIDE-MENU STUFF ****************/
-  $scope.showMenu = function()
-  {
-    $ionicSideMenuDelegate.toggleRight();
-  }
-
   /*************** NOTIFICATION STUFF ****************/
 
+  // get list of all notifications set on phone and process for display
   $scope.get_notifications = function()
   {
-    //$scope.all_notifications = notification_service.get_notifications();
-    //$scope.all_notifications = $cordovaLocalNotification.getAll();
     $cordovaLocalNotification.getAllScheduled().then(function(all_notifs) 
     {
       $scope.all_notifications = [];
-      // parse data here
+      // for each notification....
       for (var i = 0; i < all_notifs.length; i++)
       {
         console.log(JSON.stringify(all_notifs[i]));
 
+        // parse notification's data string into an object
         var data = JSON.parse(all_notifs[i].data);
+
+        // get the associated complete schedule
         var schedule = data['schedule'];
+        // date
         var date = new Date(data['date_in_miliseconds']);
+        // stop
         var stop = data['stop']
+        // deadline of notification
         var deadline = new Date(data['deadline']);
+        // time cushion to notify in advance (integer)
         var cushion = data['cushion'];
+        // actual arrival datetime of train at stop
         var deadline_no_cushion = new Date(deadline.getTime() + cushion*60000);
+        // actual arrival time of train at stop
         var deadline_time_nc = time_service.extract_time_from_obj(deadline_no_cushion, false);
+        // actual notification time
         var deadline_time = time_service.extract_time_from_obj(deadline, false);
+        // last updated time
         var last_updated = data['last_updated'];
         var notif_rep = {
                           id: all_notifs[i].id,
@@ -378,38 +352,9 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     });
   }
 
-  $scope.alert_notifications = function()
-  {
-    $cordovaLocalNotification.get(1, function(n)
-    {
-      console.log(n.text);
-    });
-    console.log("checking if 1 exists")
-    $cordovaLocalNotification.isScheduled(1, function (present) 
-    {
-      alert(present ? "present" : "not found");
-    });
-    console.log(JSON.stringify($cordovaLocalNotification.isScheduled(1)))
-    console.log(JSON.stringify($cordovaLocalNotification.getScheduledIds()))
-    notification_service.update_all_notifications();
-  }
-
-  $scope.logScheduled = function() 
-  {
-    $cordovaLocalNotification.getScheduledIds().then(function(num) 
-    {
-      console.log(JSON.stringify(num));
-    });
-    console.log(JSON.stringify($scope.all_notifications));
-  }
-
-  $scope.show_notif_button = function(string)
-  {
-    return time_service.is_time_string(string);
-  }
-
   $ionicPlatform.ready(function () 
   {
+    // enable background mode
     cordova.plugins.backgroundMode.enable();
     cordova.plugins.backgroundMode.setDefaults(
     {
@@ -422,6 +367,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     setInterval(notification_service.update_all_notifications, 120000);
 
 
+    // notify user when notfication is successfully set
     $rootScope.$on('$cordovaLocalNotification:schedule', function (event, notification, state) 
     {
       var alertPopup = $ionicPopup.show(
@@ -436,25 +382,23 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
       console.log(notification.text);
     });
 
+    // update notifications data display when one is triggered
     $rootScope.$on('$cordovaLocalNotification:trigger', function (event, notification, state) 
     {
       $scope.all_notifications = $scope.get_notifications();
     });
 
+    // update notifications data display when one is cancelled
     $rootScope.$on('$cordovaLocalNotification:cancel', function (event, notification, state) 
     {
       $scope.all_notifications = $scope.get_notifications();
     });
 
+    // update notifications data display when all are cancelled
     $rootScope.$on('$cordovaLocalNotification:cancelall', function (event, state) 
     {
       $scope.all_notifications = $scope.get_notifications();
     });
-
-    $scope.schedule_notification_now = function()
-    {
-      notification_service.schedule_notification_now($scope.to.value);
-    }
   });
 
   // schedule a notification
@@ -462,7 +406,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   {
     /* DATA TO SET NOTIFICATION */
     $scope.notif_template = {cushion: 10, place: place, time: time};
-    // An elaborate, custom popup
+    // open pop up user can select cushion
     var myPopup = $ionicPopup.show(
     {
       templateUrl: "templates/notif_popup.html",
@@ -475,6 +419,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
           type: 'button-positive',
           onTap: function(e) 
           {
+            // set notification
             notification_service.schedule_notification($scope.live_data, place, time, $scope.notif_template.cushion);
           }
         }
@@ -487,6 +432,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
   }
 
   // remove a notification
+  // open popup for user to verify before proceeding
   $scope.remove_notif_popup = function(notif) 
   {
      var confirmPopup = $ionicPopup.confirm(
@@ -509,6 +455,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
    };
 
    // clear all notifications currently scheduled
+   // open popup for user to verify before proceeding
   $scope.clearall_notif_popup = function() 
   {
     $cordovaLocalNotification.getScheduledIds().then(function(all_ids)
@@ -548,15 +495,35 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
    });
   };
 
+  $scope.show_notif_button = function(time)
+  {
+    return time_service.is_time_string(time);
+  };
+
+
+  $scope.backgroundmode = {enabled: true}
+  $scope.toggle_background_mode = function()
+  {
+    if ($scope.backgroundmode.enabled)
+    {
+      cordova.plugins.backgroundMode.enable();
+    }
+    else
+    {
+      cordova.plugins.backgroundMode.disable();
+    }
+  };
+
   /*************** MAP STUFF ****************/
 
+  // show visualization feature
   $scope.show_map = function(a, b)
   {
     $scope.map = map_service.show_map(a, b)
-    //setInterval(2 min, map_service.gps_update())
   }
 })
 
+// router for states
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider

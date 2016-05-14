@@ -137,13 +137,3 @@ def getTrainData(origin, dest, d):
 										t['location'], d, t['arrival'], t['departure']))
 			
 	return [all_routes, all_transfers]
-
-#d = date(2016, 5, 20)
-#print getTrainData("Princeton", "New York Penn Station", d)
-
-#data = getTrainData('Princeton', 'New York Penn Station', datetime.today())
-#data = getTrainData('Princeton', 'Philadelphia 30th Street', datetime.today())
-
-#print json.dumps(data[0])
-#crud_functions.post_routes_mass(data[0])
-#crud_functions.post_transfers_mass(data[1])

@@ -28,13 +28,16 @@ def formatTime(raw_t):
 	#return d.time().strftime('%H:%M')
 	return d.time().isoformat()
 
+# format string a date object
 def formatDate(date):
 	#return date.isoformat()
 	return date.strftime('%Y-%m-%d')
 
+# generate primary key for a schedule by concatenating <origin> <dest> <departureTime>
 def generatePrimaryKey(origin, dest, departureDatetime):
 	return origin + dest + departureDatetime#.strftime('%m%d%Y%I%M')
 
+# create a transfer python dictionary given its necessary attributes
 def getTransferJSON(fk, order, trainName, location, date, timeArrival, timeDeparture):
 	return {"trainroute": fk,
 			"order": order,
@@ -43,6 +46,7 @@ def getTransferJSON(fk, order, trainName, location, date, timeArrival, timeDepar
 			"timeArr": formatTime(timeArrival),
 			"timeDep": formatTime(timeDeparture)}
 
+# create a dictionary for a given train route for storage in database as a model without transfers (handled later)
 def getTripJSON(origin, dest, name, date, timeDeparture, timeArrival, travelLength):
 	date = formatDate(date)
 	timeDeparture = formatTime(timeDeparture)

@@ -1,18 +1,27 @@
 app.service('notification_service', function(data_service, time_service, $cordovaLocalNotification, $ionicPlatform) 
 {  
+  // helper function to get military time from AM/PM time
+  // borrowed from this URL:
+  // http://grephaxs.com/convert-military-time-to-standard-time-with-javascript/
   function get_military_time(time)
   {
     var hours = Number(time.match(/^(\d+)/)[1]);
     var minutes = Number(time.match(/:(\d+)/)[1]);
     var AMPM = time.match(/\s(.*)$/)[1];
-    if(AMPM == "PM" && hours<12) hours = hours+12;
-    if(AMPM == "AM" && hours==12) hours = hours-12;
+    if (AMPM == "PM" && hours < 12) 
+      hours = hours+12;
+    if (AMPM == "AM" && hours == 12) 
+      hours = hours - 12;
     var sHours = hours.toString();
     var sMinutes = minutes.toString();
-    if(hours<10) sHours = "0" + sHours;
-    if(minutes<10) sMinutes = "0" + sMinutes;
+    if (hours<10) 
+      sHours = "0" + sHours;
+    if (minutes<10) 
+      sMinutes = "0" + sMinutes;
     return sHours + ':' + sMinutes;
   }
+
+  // helper function to add <days> days to <date>
   function addDays(date, days) 
   {
     var result = new Date(date);
@@ -21,6 +30,7 @@ app.service('notification_service', function(data_service, time_service, $cordov
   }
 
   // accepts military time and search date
+  // returns the date_time for notification to trigger
   function get_date_time(searchDate, time, cushion)
   {
     // add one day if late train
@@ -34,10 +44,10 @@ app.service('notification_service', function(data_service, time_service, $cordov
     notif_time = searchDate;
     notif_time.setHours(hours)
     notif_time.setMinutes(minutes - cushion)
-    //notif_time.setMinutes(notif_time.getMinutes() - duration)
     return notif_time
   }
 
+  // update a notification <notif> with new live scraped data
   function updateNotification(notif)
   {
     var data = JSON.parse(notif['data']);
@@ -105,7 +115,7 @@ app.service('notification_service', function(data_service, time_service, $cordov
     return;
   }
 
-
+  // iterate through all currently set notifications and perform live update
   this.update_all_notifications = function()
   {
     console.log("trying to update... " + new Date());
@@ -120,6 +130,7 @@ app.service('notification_service', function(data_service, time_service, $cordov
     });
   }
   
+  // helper function: is <value> in array <current_ids>?
   function inIntArray(current_ids, value)
   {
     for (var i = 0; i < current_ids.length; i++)
@@ -132,6 +143,7 @@ app.service('notification_service', function(data_service, time_service, $cordov
     return false;
   }
 
+  // generate a unique ID for a new notification given currently set IDs
   function getID(current_ids)
   {
     var limit = 5;
@@ -145,7 +157,8 @@ app.service('notification_service', function(data_service, time_service, $cordov
     return -1;
   }
 
-  // live data contains current train number and schedule
+  // use the live scraped data and place/time of requested notification 
+  // to schedule a new notification
   this.schedule_notification = function(live_data, place, time, cushion) 
   {
     $cordovaLocalNotification.getScheduledIds().then(function(all_ids) 
@@ -185,10 +198,12 @@ app.service('notification_service', function(data_service, time_service, $cordov
                        deadline: deadline
                     };
       console.log(JSON.stringify(live_data.schedule));
-      //alert("Set alarm for " + notif_datetime);
+
       var update_count = 0;
+      // if on phone...
       if (ionic.Platform.isWebView()) 
       {
+        // schedule notification
         $cordovaLocalNotification.schedule(
         {
           id: this_id,
@@ -203,30 +218,5 @@ app.service('notification_service', function(data_service, time_service, $cordov
         });
       }
     });
-  }
-
-  this.schedule_notification_now = function (place) 
-  {
-    var t = new Date();
-    t.setSeconds(t.getSeconds() + 10);
-    //alert("clicked");
-    //addNotification({location: place, time: "default"});
-    if (ionic.Platform.isWebView()) 
-    {
-      $cordovaLocalNotification.schedule(
-      {
-        id: 1,
-        title: place,
-        at: t,
-        text: 'Arriving in 5 minutes',
-        data: {
-          customProperty: 'custom value'
-              }
-      })
-      .then(function (result) 
-      {
-        //console.log('Notification 1 triggered');
-      });
-    }
   }
 });

@@ -1,4 +1,4 @@
-/* modal stuff */
+/* style modal */
 
 .ion-nifty-modal 
 {
@@ -43,12 +43,23 @@ border: 1px solid black;
 
 /* background stuff */
 
+.homewallpaper
+{
+  /*background:url(../img/city_3_484x860_2.jpg) !important;*/
+  background:url(../img/canva_test7.png) !important;
+	background-repeat:no-repeat;
+    background-size:cover;
+    overflow:hidden;
+    z-index: 1;
+}
+
 .wallpaper
 {
-	/*background:url(../img/havasu_original.jpg) !important;*/
-  /*background:url(../img/city_1.jpg) !important;*/
-  background:url(../img/city_3_484x860_2.jpg) !important;
-	background-repeat:no-repeat;
+  /*background-color: #e2f4ff;*/
+  /*background-color: #cce6ff;*/
+  /*background-color: #8d8d8d;*/
+  background:url(../img/grid_three.png) !important;
+  background-repeat:no-repeat;
     background-size:cover;
     overflow:hidden;
     z-index: 1;
@@ -65,7 +76,7 @@ border: 1px solid black;
    width: 100%;
 }
 
-/* map stuff */
+/* style map so it displays properly */
 
 .scroll {
     height: 100%;
@@ -76,7 +87,7 @@ border: 1px solid black;
     height: 100%;
 }
 
-/* popover stuff */
+/* style popover */
 
 .popover {
   height: auto !important;
@@ -93,6 +104,7 @@ border: 1px solid black;
   padding: 5px 20px;
 }
 
+/* vertically center an element */
 .vertical_center
 {
   position: relative;
@@ -100,6 +112,8 @@ border: 1px solid black;
   transform: translateY(-50%);  
 }
 
+
+/* center a notification icon within a button */
 .notification_icon
 {
   /*position: absolute;*/
@@ -109,12 +123,14 @@ border: 1px solid black;
   transform: translateY(-50%);
 }
 
+/* add outline to a Ionic grid */
 .grid_outline
 {
   border: 1px solid;
   border-radius: 5px; 
 }
 
+/* center notification buttons */
 .notif_buttons_center
 {
   margin-left: auto;

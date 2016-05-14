@@ -1,8 +1,8 @@
-from __future__ import unicode_literals
+eafrom __future__ import unicode_literals
 from django.db import models
 import django.utils.timezone
 
-# Create your models here.
+# train route model for schedule data for a given route
 class Trainroute(models.Model):
 	primary_key = models.CharField(max_length=100, primary_key=True)
 	created = models.DateTimeField(auto_now_add=True)
@@ -14,6 +14,7 @@ class Trainroute(models.Model):
 	timeEnd = models.TimeField()
 	duration = models.PositiveIntegerField()
 
+# transfer model for a transfer within a route
 class Transfer(models.Model):
 	trainroute = models.ForeignKey(Trainroute, related_name='transfers', on_delete=models.CASCADE)
 	order = models.IntegerField()

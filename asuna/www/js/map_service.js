@@ -1,5 +1,6 @@
 app.service('map_service', function() 
 {
+  // function to alter names to locate on gps map
   function fixNames(location)
   {
       var start = "Princeton Station, NJ";
@@ -18,6 +19,7 @@ app.service('map_service', function()
       return start;
   }
 
+  // initialize locations on map
   function initMapLocations(location1, location2) {
 
     var start = fixNames(location1);
@@ -41,14 +43,9 @@ app.service('map_service', function()
     directionsDisplay.setMap(map);
     calculateAndDisplayRoute(start, end, directionsService, directionsDisplay);
     var marker = putGPSonMap(map);
-    /*
-    map.addListener('click', function(event) {
-    resetGPS(map, marker);
-    });
-    */
-
   } 
 
+  //reset the GPS if necessary
   function resetGPS(map, marker){
    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -67,6 +64,7 @@ app.service('map_service', function()
     }
   }
 
+  // add marker to map
   function putGPSonMap(map)
   {
     var image = 
@@ -109,6 +107,7 @@ app.service('map_service', function()
     return marker;
   }
 
+  // display route between origin and destination
   function calculateAndDisplayRoute(location1, location2, directionsService, directionsDisplay) 
   {
     directionsService.route({
@@ -125,6 +124,7 @@ app.service('map_service', function()
     });
   }
 
+  // call helper functions (above) to display autotracking map
   this.show_map = function(from, to)
   {
     console.log("hi")

@@ -36,6 +36,8 @@
              
     <ion-nav-view></ion-nav-view>
 
+    <!-- options tool bar -->
+
     <script id="templates/background.html" type="text/ng-template">
       <ion-side-menus>
         <ion-side-menu-content drag-content="false" >
@@ -53,13 +55,6 @@
         </ion-side-menu>
       </ion-side-menus>
     </script>
-
-    <script id="my-popup.html" type="text/ng-template">
-          <div class="list">
-            <a class="item item-icon-right" ng-repeat='num in train_numbers' ng-bind="num" ui-sref="app.liveData" ng-click="get_live_data(num); sendOrder();">
-              <i class="icon ion-chevron-right"></i>
-            </a>
-          </div>
-    </script>
+    
   </body>
 </html>

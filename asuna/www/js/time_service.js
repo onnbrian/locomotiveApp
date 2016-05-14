@@ -1,5 +1,8 @@
+// THIS IS A TIME SERVICE; IT CONTAINS TIME FUNCTIONS THAT ARE USED ACROSS APPLICATION
+
 app.service('time_service', function($http) 
 {
+  // extract date from <date_obj> as a string YYYY-MM-DD
   this.get_date_string = function (date_obj)
   {
     var m = date_obj.getMonth() + 1;
@@ -12,12 +15,14 @@ app.service('time_service', function($http)
     return y + '-' + m + '-' + d
   }
 
+  // get month name from date object
   this.get_month_name = function(date_obj)
   {
     var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return months[date_obj.getMonth()];
   }
 
+  // get day as a 2 digit number from date object
   this.get_day_string = function(date_obj)
   {
     var day = date_obj.getDate();
@@ -26,6 +31,7 @@ app.service('time_service', function($http)
     return day
   }
 
+  // get month as a 2 digit number from date object
   this.get_month_string = function(date_obj)
   {
     var month = date_obj.getMonth() + 1;
@@ -34,6 +40,9 @@ app.service('time_service', function($http)
     return month
   }
 
+  // convert a military time string to standard time string
+  // code borrowed from the following URL:
+  // http://grephaxs.com/convert-military-time-to-standard-time-with-javascript/
   this.mil_to_standard = function(value) 
   {
     if (value !== null && value !== undefined){ //If value is passed in
@@ -73,6 +82,7 @@ app.service('time_service', function($http)
     }
   };
 
+  // extract the military time as a string from the date object: HH:MM:SS
   this.extract_time_from_obj = function(date_obj, military)
   {
     var hour    = date_obj.getHours();
@@ -99,6 +109,7 @@ app.service('time_service', function($http)
     return this.mil_to_standard(time)
   }
 
+  // remove seconds military time string: HH:MM:SS --> HH:MM
   this.mil_remove_seconds = function(value)
   {
     if (value.length == 8)
@@ -111,6 +122,7 @@ app.service('time_service', function($http)
     }
   }
 
+  // convert minutes to hours
   this.min_to_hours = function(time) 
   {
     var hours = Math.floor(time / 60);
@@ -167,6 +179,7 @@ app.service('time_service', function($http)
     return false;
   }
 
+  // are <d1> and <d2> on the same day?
   this.is_same_day = function(d1, d2)
   {
     var y1 = d1.getFullYear();
@@ -194,8 +207,6 @@ app.service('time_service', function($http)
       return false;
     }
     return true;
-    //console.log(d2)
-    //return d1.getFullYear() == d2.getFullYear() && d1.getDate() == d2.getDate() && d1.getMonth() == d2.getMonth();
   }
 
 });

@@ -14,9 +14,11 @@
   <!-- end nav bar -->
 
   <ion-content class="padding">
-    <!--
-    <button class="button button-full button-positive" ng-click="logScheduled()" >log scheduled</button>
-  -->
+    <!-- background mode toggle -->
+    <ion-toggle ng-model="backgroundmode.enabled" ng-change="toggle_background_mode()" style="margin-bottom:20px">
+      Background Tracking Mode
+    </ion-toggle>
+    <!-- background mode toggle -->
 
     <!-- error message -->
     <div class="list" ng-show="!verify_array(all_notifications)">
