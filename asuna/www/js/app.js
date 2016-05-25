@@ -7,7 +7,8 @@ var app = angular.module('starter', ['ionic', 'ngCordova'])
 
 app.controller('starterCtrl', function($scope, data_service, time_service, map_service, notification_service, $state,
                                       $ionicPopup, $ionicSideMenuDelegate, $ionicModal, $ionicPopover,
-                                      $ionicLoading, $ionicPlatform, $cordovaLocalNotification, $rootScope)
+                                      $ionicLoading, $ionicPlatform, $cordovaLocalNotification, $rootScope,
+                                      $ionicHistory)
 {
   //json string containing with origins as keys and a list of destinations from that origin as values
   $scope.travel_obj = '{ "Princeton": ["Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Princeton Junction": ["Princeton", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "New York Penn Station": ["Princeton", "Princeton Junction", "Newark Airport", "Philadelphia 30th Street", "Trenton Transit Center"], "Newark Airport": ["Princeton", "Princeton Junction", "New York Penn Station", "Philadelphia 30th Street", "Trenton Transit Center"], "Philadelphia 30th Street": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Atlantic City", "Trenton Transit Center"], "Trenton Transit Center": ["Princeton", "Princeton Junction", "New York Penn Station", "Newark Airport", "Philadelphia 30th Street"], "Atlantic City": ["Philadelphia 30th Street"]}';
@@ -28,7 +29,10 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
                           string: time_service.get_date_string(new Date()),
                           month: time_service.get_month_name(new Date()),
                           day: time_service.get_day_string(new Date()),
-                          year: new Date().getFullYear()
+                          year: new Date().getFullYear(),
+                          bar_string: time_service.get_month_name(new Date()) + ' ' + 
+                          time_service.get_day_string(new Date()) + ', ' +  
+                          new Date().getFullYear()
                         }; // search data selected by user -- default today
 
   /* DATA FROM BACK END */
@@ -53,6 +57,11 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     return array.indexOf(value) > -1;
   }
 
+  $scope.erase_history = function()
+  {
+    $ionicHistory.clearHistory();
+  }  
+
   /************ FUNCTIONS TO SET CONTROLLER VARIABLES **************/
 
   // if the origin changes, ensure destination has to acceptable value
@@ -76,7 +85,9 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     $scope.search_date.day =  time_service.get_day_string($scope.search_date.obj);
     $scope.search_date.month =  time_service.get_month_name($scope.search_date.obj);
     $scope.search_date.year =  $scope.search_date.obj.getFullYear();
-    console.log($scope.search_date.string)
+    $scope.search_date.bar_string = $scope.search_date.month + ' ' + 
+                                    $scope.search_date.day + ', ' +
+                                    $scope.search_date.year
   };
 
   // helper function to get train numbers from train name
@@ -385,19 +396,19 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     // update notifications data display when one is triggered
     $rootScope.$on('$cordovaLocalNotification:trigger', function (event, notification, state) 
     {
-      $scope.all_notifications = $scope.get_notifications();
+      $scope.get_notifications();
     });
 
     // update notifications data display when one is cancelled
     $rootScope.$on('$cordovaLocalNotification:cancel', function (event, notification, state) 
     {
-      $scope.all_notifications = $scope.get_notifications();
+      $scope.get_notifications();
     });
 
     // update notifications data display when all are cancelled
     $rootScope.$on('$cordovaLocalNotification:cancelall', function (event, state) 
     {
-      $scope.all_notifications = $scope.get_notifications();
+      $scope.get_notifications();
     });
   });
 
@@ -516,28 +527,39 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
 
   /*************** MAP STUFF ****************/
 
+  $scope.share_map_data = function()
+  {
+    map_service.set_origin($scope.from.value);
+    map_service.set_destination($scope.to.value);
+  };
   // show visualization feature
-  $scope.show_map = function(a, b)
+  /*
+  $scope.set_map_ = function(a, b)
   {
     $scope.map = map_service.show_map(a, b)
   }
+  */
 })
 
 // router for states
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $ionicConfigProvider, $urlRouterProvider) 
+{
+  $ionicConfigProvider.tabs.position('top');
+  $ionicConfigProvider.tabs.style('striped');
+  $ionicConfigProvider.navBar.alignTitle('left');
 
   $stateProvider
     .state('app', {
       url: "/app",
       abstract: true,
-      templateUrl: "templates/background.html"
+      templateUrl: "templates/tabs.html"
     })
 
     .state('app.home', {
       url: "/home",
       templateUrl: "templates/home.html",
       views: {
-        'home-view': {
+          'search-tab': {
           templateUrl: "templates/home.html"
         }
       }
@@ -546,7 +568,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     .state('app.schedResults', {
       url: "/schedResults",
       views: {
-        'home-view': {
+        'search-tab': {
           templateUrl: "templates/scheduleResults.html"
         }
       }
@@ -555,7 +577,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     .state('app.liveData', {
       url: "/liveData",
       views: {
-        'home-view': {
+        'search-tab': {
           templateUrl: "templates/liveData.html"
         }
       }
@@ -564,7 +586,8 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     .state('app.map', {
       url: "/map",
       views: {
-        'home-view': {
+        'visualize-tab': 
+        {
           templateUrl: "templates/map.html"
         }
       }
@@ -573,7 +596,7 @@ app.controller('starterCtrl', function($scope, data_service, time_service, map_s
     .state('app.notifications', {
       url: "/notifications",
       views: {
-        'home-view': {
+        'notifications-tab': {
           templateUrl: "templates/notifications.html"
         }
       }

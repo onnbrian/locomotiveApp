@@ -1,7 +1,20 @@
-<ion-view view-title="Live Data" class="wallpaper">
-  
+<ion-view class="wallpaper">
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon ion-ios-search" ui-sref="app.home">
+    </button>
+    <button class="button button-icon icon ion-information" ng-click="openModal(live_data.schedule)">
+    </button>
+    <button class="button button-icon icon ion-ios-refresh" ng-click="get_live_data()">
+    </button>
+  </ion-nav-buttons>
+
   <!-- nav bar -->
 
+  <ion-header-bar class="bar-subheader bar-positive">
+    <p style="text-align:center; font-family: Tahoma">{{from.value}} to {{to.value}} on {{search_date.string}}</p>
+  </ion-header-bar>
+
+  <!--
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
@@ -10,7 +23,7 @@
       <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
-  
+  -->
   <!-- end nav bar -->
 
   <ion-content class="padding">

@@ -1,5 +1,31 @@
 app.service('map_service', function() 
 {
+  this.origin = null;
+  this.destination = null;
+  this.center = null;
+
+  this.set_origin = function(from)
+  {
+    this.origin = from;
+    return;
+  }
+
+  this.get_origin = function()
+  {
+    return this.origin;
+  }
+
+  this.set_destination = function(to)
+  {
+    this.destination = to;
+    return;
+  }
+
+  this.get_destination = function()
+  {
+    return this.destination;
+  }
+
   // function to alter names to locate on gps map
   function fixNames(location)
   {
@@ -19,53 +45,8 @@ app.service('map_service', function()
       return start;
   }
 
-  // initialize locations on map
-  function initMapLocations(location1, location2) {
-
-    var start = fixNames(location1);
-    var end = fixNames(location2);
-
-    var directionsService = new google.maps.DirectionsService;
-    var directionsDisplay = new google.maps.DirectionsRenderer;
-
-
-    var styledType = new google.maps.StyledMapType([{"elementType":"geometry","stylers":[{"hue":"#ff4400"},{"saturation":-68},{"lightness":-4},{"gamma":0.72}]},{"featureType":"road","elementType":"labels.icon"},{"featureType":"landscape.man_made","elementType":"geometry","stylers":[{"hue":"#0077ff"},{"gamma":3.1}]},{"featureType":"water","stylers":[{"hue":"#00ccff"},{"gamma":0.44},{"saturation":-33}]},{"featureType":"poi.park","stylers":[{"hue":"#44ff00"},{"saturation":-23}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"hue":"#007fff"},{"gamma":0.77},{"saturation":65},{"lightness":99}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"gamma":0.11},{"weight":5.6},{"saturation":99},{"hue":"#0091ff"},{"lightness":-86}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"lightness":-48},{"hue":"#ff5e00"},{"gamma":1.2},{"saturation":-23}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"saturation":-64},{"hue":"#ff9100"},{"lightness":16},{"gamma":0.47},{"weight":2.7}]}], {name: 'LocoMotive Style'});
-
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 7,
-      center: {lat: 40.340166, lng: -74.657889}, 
-      mayTypeControlOptions: {
-        mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'style']
-      }
-    });
-    map.mapTypes.set('style', styledType);
-    map.setMapTypeId('style');
-    directionsDisplay.setMap(map);
-    calculateAndDisplayRoute(start, end, directionsService, directionsDisplay);
-    var marker = putGPSonMap(map);
-  } 
-
-  //reset the GPS if necessary
-  function resetGPS(map, marker){
-   if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        marker.setPosition(pos);
-        map.setCenter(pos);
-      }, function() {
-        handleLocationError(true, marker, map.getCenter());
-      });
-    } else {
-      // Browser doesn't support Geolocation
-      handleLocationError(false, marker, map.getCenter());
-    }
-  }
-
   // add marker to map
-  function putGPSonMap(map)
+  this.putGPSonMap = function(map)
   {
     var image = 
     {
@@ -108,28 +89,166 @@ app.service('map_service', function()
   }
 
   // display route between origin and destination
-  function calculateAndDisplayRoute(location1, location2, directionsService, directionsDisplay) 
+  this.calculateAndDisplayRoute = function(map, directionsService, directionsDisplay, location1, location2) 
   {
+    location1 = fixNames(location1);
+    location2 = fixNames(location2);
     directionsService.route({
       origin: location1,
       destination: location2,
       travelMode: google.maps.TravelMode.TRANSIT, 
       transitOptions: { modes: [google.maps.TransitMode.TRAIN] }
-    }, function(response, status) {
-      if (status === google.maps.DirectionsStatus.OK) {
+    }, 
+    function(response, status) 
+    {
+      if (status === google.maps.DirectionsStatus.OK) 
+      {
         directionsDisplay.setDirections(response);
-      } else {
+        this.center = map.getCenter();
+      } 
+      else 
+      {
         window.alert('Directions request failed due to ' + status);
       }
     });
   }
 
-  // call helper functions (above) to display autotracking map
-  this.show_map = function(from, to)
+  function CenterControl(context, controlDiv, map, directionsService, directionsDisplay) 
   {
-    console.log("hi")
-    map = initMapLocations(from, to);
-    //$scope.map = map;
+    // Set CSS for the control border.
+    var controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = '#fff';
+    controlUI.style.border = '2px solid #fff';
+    controlUI.style.borderRadius = '3px';
+    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.marginBottom = '22px';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Click to recenter the map';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior.
+    var controlText = document.createElement('div');
+    controlText.style.color = 'rgb(25,25,25)';
+    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+    controlText.style.fontSize = '16px';
+    controlText.style.lineHeight = '38px';
+    controlText.style.paddingLeft = '5px';
+    controlText.style.paddingRight = '5px';
+    controlText.innerHTML = 'Center Map';
+    controlUI.appendChild(controlText);
+
+    // Add click event listener
+    controlUI.addEventListener('click', function() 
+    {
+      context.calculateAndDisplayRoute(map, directionsService, directionsDisplay, context.origin, context.destination);
+    });
+
+  }
+
+  // initialize map and add gps
+  this.initialize_map = function(directionsService, directionsDisplay) 
+  {
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 7,
+      center: {lat: 40.340166, lng: -74.657889}, 
+      mayTypeControlOptions: {
+        mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'style']
+      }
+    });
+
+    //putGPSonMap(map);
+    // Create the DIV to hold the control and call the CenterControl()
+    // constructor passing in this DIV.
+    var centerControlDiv = document.createElement('div');
+    var centerControl = new CenterControl(this, centerControlDiv, map, directionsService, directionsDisplay);
+
+    centerControlDiv.index = 1;
+    map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+
+    /*
+    // style
+    var styledType = new google.maps.StyledMapType([{"elementType":"geometry","stylers":[{"hue":"#ff4400"},{"saturation":-68},{"lightness":-4},{"gamma":0.72}]},{"featureType":"road","elementType":"labels.icon"},{"featureType":"landscape.man_made","elementType":"geometry","stylers":[{"hue":"#0077ff"},{"gamma":3.1}]},{"featureType":"water","stylers":[{"hue":"#00ccff"},{"gamma":0.44},{"saturation":-33}]},{"featureType":"poi.park","stylers":[{"hue":"#44ff00"},{"saturation":-23}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"hue":"#007fff"},{"gamma":0.77},{"saturation":65},{"lightness":99}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"gamma":0.11},{"weight":5.6},{"saturation":99},{"hue":"#0091ff"},{"lightness":-86}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"lightness":-48},{"hue":"#ff5e00"},{"gamma":1.2},{"saturation":-23}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"saturation":-64},{"hue":"#ff9100"},{"lightness":16},{"gamma":0.47},{"weight":2.7}]}], {name: 'LocoMotive Style'});
+    map.mapTypes.set('style', styledType);
+    map.setMapTypeId('style');
+    */
+    this.putGPSonMap(map);
     return map;
+  } 
+
+
+  // reset the GPS if necessary
+  function resetGPS(map, marker){
+   if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        marker.setPosition(pos);
+        map.setCenter(pos);
+      }, function() {
+        handleLocationError(true, marker, map.getCenter());
+      });
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, marker, map.getCenter());
+    }
   }
 });
+
+app.controller('mapCtrl', function($scope, map_service)
+{
+  $scope.map = null;
+  $scope.directionsService = new google.maps.DirectionsService;
+  $scope.directionsDisplay = new google.maps.DirectionsRenderer;
+  $scope.origin = '';
+  $scope.destination = '';
+
+  // return true if route changed
+  // else false
+  function check_location_changes_and_update()
+  {
+    // check if changed
+    if (map_service.get_origin() != $scope.origin || map_service.get_destination() != $scope.destination)
+    {
+      // update routes
+      $scope.origin = map_service.get_origin();
+      $scope.destination = map_service.get_destination();
+      return true;
+    }
+    return false;
+  }
+
+  // create google map object
+  // called once the first time map state is visited
+  $scope.show_map = function()
+  {
+    // initialize google map object
+    $scope.map = map_service.initialize_map($scope.directionsService, $scope.directionsDisplay);
+    // add route using current directions
+    $scope.directionsDisplay.setMap($scope.map);
+    // set origin and destinations
+    $scope.origin = map_service.get_origin();
+    $scope.destination = map_service.get_destination();
+    // draw route
+    map_service.calculateAndDisplayRoute($scope.map, $scope.directionsService, $scope.directionsDisplay,
+                                         $scope.origin, $scope.destination);
+  }
+
+  // whenever this state is visited, update route to current locations
+  $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) 
+  {
+    if (toState.name == "app.map")
+    {
+      if (check_location_changes_and_update())
+      {
+        // erase old route
+        $scope.directionsDisplay.setDirections({routes: []});
+        // display new route
+        map_service.calculateAndDisplayRoute($scope.map, $scope.directionsService, $scope.directionsDisplay,
+                                             $scope.origin, $scope.destination);
+      }
+    }
+  })
+})

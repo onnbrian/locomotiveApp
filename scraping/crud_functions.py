@@ -15,16 +15,16 @@ local_url_strings = {
 }
 
 remote_url_strings = {
-	'routes_get_all': 'http://54.165.156.225:8000/trainsched/routes_all',
-	'routes_get_from_to': 'http://54.165.156.225:8000/trainsched/routes_from_to/{0}/{1}',
-	'routes_get_from_to_on': 'http://54.165.156.225:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
-	'routes_post_single': 'http://54.165.156.225:8000/trainsched/routes_all/',
-	'routes_post_mass': 'http://54.165.156.225:8000/trainsched/routes_post_mass/',
-	'routes_delete_from_to': 'http://54.165.156.225:8000/trainsched/routes_from_to/{0}/{1}',
-	'routes_delete_from_to_on': 'http://54.165.156.225:8000/trainsched/routes_from_to_on/{0}/{1}/{2}',
-    'transfers_get_all': 'http://54.165.156.225:8000/trainsched/transfers_all/',
-    'transfers_post_single': 'http://54.165.156.225:8000/trainsched/transfers_all/',
-    'transfers_post_mass': 'http://54.165.156.225:8000/trainsched/transfers_post_mass/',
+	'routes_get_all': 'http://54.165.156.225/trainsched/routes_all',
+	'routes_get_from_to': 'http://54.165.156.225/trainsched/routes_from_to/{0}/{1}',
+	'routes_get_from_to_on': 'http://54.165.156.225/trainsched/routes_from_to_on/{0}/{1}/{2}',
+	'routes_post_single': 'http://54.165.156.225/trainsched/routes_all/',
+	'routes_post_mass': 'http://54.165.156.225/trainsched/routes_post_mass/',
+	'routes_delete_from_to': 'http://54.165.156.225/trainsched/routes_from_to/{0}/{1}',
+	'routes_delete_from_to_on': 'http://54.165.156.225/trainsched/routes_from_to_on/{0}/{1}/{2}',
+    'transfers_get_all': 'http://54.165.156.225/trainsched/transfers_all/',
+    'transfers_post_single': 'http://54.165.156.225/trainsched/transfers_all/',
+    'transfers_post_mass': 'http://54.165.156.225/trainsched/transfers_post_mass/',
 }
 
 url_strings = remote_url_strings
@@ -44,7 +44,7 @@ def get_routes_from_to(origin, dest):
 	return r.text
 
 # get routes from/to/on
-def get_routes_from_to(origin, dest, d):
+def get_routes_from_to_on(origin, dest, d):
 	r = requests.get(url_strings['routes_get_from_to_on'].format(origin, dest, d))
 	r.raise_for_status()
 	return r.text

@@ -1,18 +1,25 @@
-<ion-view view-title="{{search_date.month}} {{search_date.day}}, {{search_date.year}}" class="wallpaper">
-  
-  <!-- nav bar start -->
+<ion-view class="wallpaper">
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon ion-ios-search" ui-sref="app.home">
+    </button>
+  </ion-nav-buttons>
 
+  <div class="bar bar-subheader bar-dark subheader_indent">
+    <h6 style="text-align:center; color:white">{{from.value}} to {{to.value}} on {{search_date.bar_string}}</h6>
+  </div>
+
+  <!-- nav bar start -->
+  <!--
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
       <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
-
+  -->
   <!-- nav bar end -->
 
-  <ion-content class="padding" overflow-scroll="true" has-subheader="true">
-
+  <ion-content class="padding schedule_results_content subheader_indent" overflow-scroll="true">
 
     <!-- error message -->
     <div class="list" ng-show="!verify_array(schedules)">
@@ -33,7 +40,7 @@
           <!--
           <a class="button button-clear button-dark button-icon icon ion-ios-clock-outline" ng-click="set_live_data(sched)" ui-sref="app.liveData"></a>
         -->
-          <a class="button button-clear button-small button-dark button-icon icon ion-ios-pulse" ng-click="set_live_data(sched, null)"></a>
+          <a class="button button-clear button-small button-dark button-icon icon ion-android-train" ng-click="set_live_data(sched, null)"></a>
           <a class="button button-clear button-small button-dark button-icon icon ion-information" ng-click="openModal(current_card.info)"></a>
         </div>
       </div>

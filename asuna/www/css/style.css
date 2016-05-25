@@ -46,23 +46,29 @@ border: 1px solid black;
 .homewallpaper
 {
   /*background:url(../img/city_3_484x860_2.jpg) !important;*/
-  background:url(../img/canva_test7.png) !important;
+  /*background:url(../img/canva_test7.png) !important;
 	background-repeat:no-repeat;
-    background-size:cover;
-    overflow:hidden;
-    z-index: 1;
+  background-size:cover;
+  background-size: 100% 100%;
+  overflow:hidden;
+  z-index: 1;*/
+  background: url(../img/canva_test7.png) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
 
 .wallpaper
 {
-  /*background-color: #e2f4ff;*/
-  /*background-color: #cce6ff;*/
-  /*background-color: #8d8d8d;*/
-  background:url(../img/grey_white_middle.png) !important;
-  background-repeat:no-repeat;
+  background-color: #D3D3D3;
+  /*background:url(../img/grey_white_middle.png) !important;*/
+
+  /*background-repeat:no-repeat;
     background-size:cover;
     overflow:hidden;
     z-index: 1;
+  */
 }
 
 /* moving stuff down on homepage */
@@ -70,7 +76,7 @@ border: 1px solid black;
 .home_page_forms
 {
    position: absolute;
-   top: 30%;
+   top: 28%;
    /*margin-top: 50px;/* half of #content height*/
    left: 0;
    width: 100%;
@@ -141,4 +147,29 @@ border: 1px solid black;
 .center_text
 {
   text-align:center;
+}
+
+/* subheader bar */
+.custom_subheader
+{
+  /* outline on bottom */
+  box-shadow: 0 1px 0 black;
+
+  /*margin-top: 49px;*/
+}
+
+.subheader_indent
+{
+  margin-top: 49px;
+}
+
+/* schedule contents */
+
+.schedule_results_content
+{
+  /* add scroll bar */
+  border-radius: 1px;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 4px;
 }

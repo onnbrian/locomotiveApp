@@ -1,16 +1,5 @@
-<!--<script id="templates/map.html" type="text/ng-template">-->
-<ion-view view-title="Routing Tracking">
-  <ion-nav-bar class="bar-positive">
-    <ion-nav-back-button></ion-nav-back-button>
-    <ion-nav-buttons side="right">
-      <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
-    </ion-nav-buttons>
-  </ion-nav-bar>
-  <ion-content class="padding">
-  <!--
-    <button ng-init="show_map(from.value, to.value)">Visualize</button>
-  -->
-    <div id="map" data-tap-disabled="true" ng-init="show_map(from.value, to.value)"></div>
+<ion-view>
+  <ion-content ng-controller="mapCtrl">
+    <div id="map" data-tap-disabled="true" ng-init="show_map()"></div>
   </ion-content>
 </ion-view>
-<!--</script>-->

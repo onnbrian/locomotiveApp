@@ -1,15 +1,20 @@
-<ion-view view-title="Notifications" class="wallpaper">
-  
+<ion-view class="wallpaper" ng-init="erase_history()">
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon ion-android-delete" ng-click="clearall_notif_popup()"></button>
+    <button class="button button-icon icon ion-ios-refresh" ng-click="get_notifications()"></button>
+  </ion-nav-buttons>
   <!-- nav bar -->
 
+  <!--
   <ion-nav-bar class="bar-positive">
     <ion-nav-back-button></ion-nav-back-button>
     <ion-nav-buttons side="right">
       <button class="button button-icon icon ion-ios-close-outline" ng-click="clearall_notif_popup()"></button>
-      <button class="button button-icon icon ion-ios-refresh-outline" ng-click="get_notifications()"></button>
+      <>
       <button class="button button-icon icon ion-android-more-vertical" ng-click="openPopover($event)"></button>
     </ion-nav-buttons>
   </ion-nav-bar>
+  -->
   
   <!-- end nav bar -->
 
@@ -35,7 +40,7 @@
       <div class="list list-inset" ng-repeat="notif in all_notifications track by $index" style="margin-bottom:20px">
         <div class="item item-divider">
           <div class="button-bar">
-                <button class="button button-small button-icon icon ion-ios-pulse notif_buttons_center" ng-click="set_live_data(notif['schedule'], notif['train_num'])">
+                <button class="button button-small button-icon icon ion-android-train notif_buttons_center" ng-click="set_live_data(notif['schedule'], notif['train_num'])">
                 </button>
                 <button class="button button-small button-icon icon ion-ios-minus-outline notif_buttons_center" ng-click="remove_notif_popup(notif)">
                 </button>
